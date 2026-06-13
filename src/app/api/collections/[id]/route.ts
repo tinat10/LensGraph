@@ -2,13 +2,16 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/lib/auth/auth";
 import {
+  deleteCollection,
   getCollectionForUser,
   updateCollection,
 } from "@/services/collection.service";
+import { serializePhoto } from "@/lib/photos/serialize";
 
 const updateCollectionSchema = z.object({
   title: z.string().trim().min(1).max(120).optional(),
   description: z.string().trim().max(500).optional(),
+  coverPhotoId: z.string().nullable().optional(),
 });
 
 type RouteContext = {
@@ -40,20 +43,9 @@ export async function GET(_request: Request, context: RouteContext) {
         isPublic: collection.isPublic,
         coverPhotoId: collection.coverPhotoId,
         photoCount: collection._count.photos,
-        photos: collection.photos.map((photo) => ({
-          id: photo.id,
-          originalFilename: photo.originalFilename,
-          secureUrl: photo.secureUrl,
-          thumbnailUrl: photo.thumbnailUrl,
-          format: photo.format,
-          width: photo.width,
-          height: photo.height,
-          fileSize: photo.fileSize,
-          uploadedAt: photo.uploadedAt.toISOString(),
-          metadata: photo.metadata,
-          colorPalette: photo.colorPalette,
-          tags: photo.tags.map((photoTag) => photoTag.tag),
-        })),
+        photos: collection.photos.map((photo) =>
+          serializePhoto(photo, collection.coverPhotoId),
+        ),
         storyPage: collection.storyPage,
       },
     });
@@ -82,9 +74,13 @@ export async function PATCH(request: Request, context: RouteContext) {
       );
     }
 
-    if (!parsed.data.title && parsed.data.description === undefined) {
+    if (
+      !parsed.data.title &&
+      parsed.data.description === undefined &&
+      parsed.data.coverPhotoId === undefined
+    ) {
       return NextResponse.json(
-        { error: "Provide title or description to update" },
+        { error: "Provide at least one field to update" },
         { status: 400 },
       );
     }
@@ -97,11 +93,34 @@ export async function PATCH(request: Request, context: RouteContext) {
         title: collection.title,
         description: collection.description,
         isPublic: collection.isPublic,
+        coverPhotoId: collection.coverPhotoId,
       },
     });
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Failed to update collection";
+    const status =
+      message === "Collection not found" ||
+      message === "Cover photo must belong to this collection"
+        ? 404
+        : 500;
+    return NextResponse.json({ error: message }, { status });
+  }
+}
+
+export async function DELETE(_request: Request, context: RouteContext) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  try {
+    const { id } = await context.params;
+    await deleteCollection(id, session.user.id);
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Failed to delete collection";
     const status = message === "Collection not found" ? 404 : 500;
     return NextResponse.json({ error: message }, { status });
   }

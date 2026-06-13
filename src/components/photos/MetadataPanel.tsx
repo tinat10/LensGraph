@@ -1,7 +1,31 @@
+"use client";
+
 import type { PhotoCardData } from "@/components/photos/PhotoCard";
+import { PhotoTagEditor } from "@/components/photos/PhotoTagEditor";
+import { AiInsightsPanel } from "@/components/photos/AiInsightsPanel";
+import { LocationPanel } from "@/components/photos/LocationPanel";
+import type { PhotoTagSummary } from "@/lib/photos/serialize";
 
 type MetadataPanelProps = {
   photo: PhotoCardData | null;
+  onTagsChange?: (photoId: string, tags: PhotoTagSummary[]) => void;
+  onEnriched?: (
+    photoId: string,
+    data: {
+      aiCaption: string;
+      aiMood: string;
+      tags: PhotoTagSummary[];
+    },
+  ) => void;
+  onGeocoded?: (
+    photoId: string,
+    data: {
+      locationName: string;
+      city: string | null;
+      country: string | null;
+      tags: PhotoTagSummary[];
+    },
+  ) => void;
 };
 
 function formatValue(value: string | number | null | undefined) {
@@ -17,7 +41,7 @@ function formatShutterSpeed(value: number | null | undefined) {
   return `1/${Math.round(1 / value)}s`;
 }
 
-export function MetadataPanel({ photo }: MetadataPanelProps) {
+export function MetadataPanel({ photo, onTagsChange, onEnriched, onGeocoded }: MetadataPanelProps) {
   if (!photo) {
     return (
       <aside className="rounded-2xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-950">
@@ -25,7 +49,7 @@ export function MetadataPanel({ photo }: MetadataPanelProps) {
           Metadata
         </h2>
         <p className="mt-4 text-sm text-zinc-600 dark:text-zinc-400">
-          Select a photo to inspect EXIF details and color analysis.
+          Select a photo to inspect EXIF details, tags, and color analysis.
         </p>
       </aside>
     );
@@ -39,6 +63,13 @@ export function MetadataPanel({ photo }: MetadataPanelProps) {
     focalLength?: number | null;
     latitude?: number | null;
     longitude?: number | null;
+    aiCaption?: string | null;
+    aiMood?: string | null;
+    aiEnrichedAt?: string | Date | null;
+    locationName?: string | null;
+    city?: string | null;
+    country?: string | null;
+    locationGeocodedAt?: string | Date | null;
   } | null;
 
   const palette = photo.colorPalette as PhotoCardData["colorPalette"] & {
@@ -55,10 +86,7 @@ export function MetadataPanel({ photo }: MetadataPanelProps) {
       "Dimensions",
       photo.width && photo.height ? `${photo.width} × ${photo.height}` : "—",
     ],
-    [
-      "Uploaded",
-      new Date(photo.uploadedAt).toLocaleString(),
-    ],
+    ["Uploaded", new Date(photo.uploadedAt).toLocaleString()],
     [
       "Taken",
       metadata?.takenAt
@@ -137,8 +165,38 @@ export function MetadataPanel({ photo }: MetadataPanelProps) {
         </div>
       ) : null}
 
-      {/* TODO(OpenAI Vision): Display AI caption and subject tags here */}
-      {/* TODO(Mapbox): Display reverse-geocoded location name here */}
+      <AiInsightsPanel
+        photoId={photo.id}
+        aiCaption={metadata?.aiCaption}
+        aiMood={metadata?.aiMood}
+        aiEnrichedAt={
+          metadata?.aiEnrichedAt
+            ? new Date(metadata.aiEnrichedAt).toISOString()
+            : null
+        }
+        onEnriched={(data) => onEnriched?.(photo.id, data)}
+      />
+
+      <LocationPanel
+        photoId={photo.id}
+        latitude={metadata?.latitude}
+        longitude={metadata?.longitude}
+        locationName={metadata?.locationName}
+        city={metadata?.city}
+        country={metadata?.country}
+        locationGeocodedAt={
+          metadata?.locationGeocodedAt
+            ? new Date(metadata.locationGeocodedAt).toISOString()
+            : null
+        }
+        onGeocoded={(data) => onGeocoded?.(photo.id, data)}
+      />
+
+      <PhotoTagEditor
+        photoId={photo.id}
+        tags={photo.tags ?? []}
+        onTagsChange={(tags) => onTagsChange?.(photo.id, tags)}
+      />
     </aside>
   );
 }

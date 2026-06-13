@@ -1,6 +1,9 @@
 import { notFound } from "next/navigation";
 import { PhotoGrid } from "@/components/photos/PhotoGrid";
+import { StoryWeatherBanner } from "@/components/story/StoryWeatherBanner";
+import { serializePhoto } from "@/lib/photos/serialize";
 import { getPublishedStoryBySlug } from "@/services/collection.service";
+import { getStoryWeatherContext } from "@/services/story-weather.service";
 
 type StoryPageProps = {
   params: Promise<{ slug: string }>;
@@ -14,19 +17,14 @@ export default async function PublicStoryPage({ params }: StoryPageProps) {
     notFound();
   }
 
-  const photos = story.collection.photos.map((photo) => ({
-    id: photo.id,
-    originalFilename: photo.originalFilename,
-    secureUrl: photo.secureUrl,
-    thumbnailUrl: photo.thumbnailUrl,
-    format: photo.format,
-    width: photo.width,
-    height: photo.height,
-    fileSize: photo.fileSize,
-    uploadedAt: photo.uploadedAt.toISOString(),
-    metadata: photo.metadata,
-    colorPalette: photo.colorPalette,
-  }));
+  const photos = story.collection.photos.map((photo) =>
+    serializePhoto(photo, story.collection.coverPhotoId),
+  );
+
+  const weather = await getStoryWeatherContext(
+    story.collectionId,
+    story.collection.coverPhotoId,
+  );
 
   return (
     <main className="min-h-screen bg-zinc-950 text-zinc-50">
@@ -38,13 +36,23 @@ export default async function PublicStoryPage({ params }: StoryPageProps) {
           {story.title}
         </h1>
         {story.intro ? (
-          <p className="mt-4 max-w-2xl text-lg text-zinc-300">{story.intro}</p>
+          <p className="mt-4 max-w-2xl text-lg leading-8 text-zinc-300">
+            {story.intro}
+          </p>
         ) : null}
-        {/* TODO(OpenWeather): Display ambient weather for story context */}
+        <p className="mt-6 text-sm text-zinc-500">
+          {photos.length} photo{photos.length === 1 ? "" : "s"}
+        </p>
+        {weather ? <StoryWeatherBanner weather={weather} /> : null}
       </section>
 
       <section className="mx-auto max-w-6xl px-6 pb-20">
-        <PhotoGrid photos={photos} />
+        <PhotoGrid
+          photos={photos}
+          readOnly
+          emptyTitle="No photos in this story"
+          emptyDescription="The collection owner has not uploaded photos yet."
+        />
       </section>
     </main>
   );

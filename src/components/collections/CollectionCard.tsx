@@ -8,6 +8,7 @@ type CollectionCardProps = {
   photoCount: number;
   updatedAt: string;
   coverPhotoUrl?: string | null;
+  isPublished?: boolean;
 };
 
 export function CollectionCard({
@@ -17,6 +18,7 @@ export function CollectionCard({
   photoCount,
   updatedAt,
   coverPhotoUrl,
+  isPublished = false,
 }: CollectionCardProps) {
   return (
     <Link
@@ -47,6 +49,9 @@ export function CollectionCard({
             {photoCount} photos
           </span>
         </div>
+        {isPublished ? (
+          <p className="mb-3 text-xs font-medium text-emerald-600">Published story</p>
+        ) : null}
         {description ? (
           <p className="mb-4 line-clamp-2 text-sm text-zinc-600 dark:text-zinc-400">
             {description}

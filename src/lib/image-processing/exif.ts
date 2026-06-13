@@ -79,6 +79,5 @@ export async function extractImageMetadata(
     latitude: getNumber("latitude"),
     longitude: getNumber("longitude"),
     rawExifJson: serializeExif(exif),
-    // TODO(Mapbox): Reverse-geocode latitude/longitude into location tags
   };
 }

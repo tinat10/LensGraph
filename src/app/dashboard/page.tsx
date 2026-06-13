@@ -58,6 +58,7 @@ export default async function DashboardPage() {
                   collection.coverPhoto?.secureUrl ??
                   null
                 }
+                isPublished={collection.storyPage?.isPublished ?? false}
               />
             ))}
           </div>

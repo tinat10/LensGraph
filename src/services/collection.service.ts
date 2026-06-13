@@ -1,4 +1,6 @@
 import { prisma } from "@/lib/db/prisma";
+import { deleteCloudinaryImage } from "@/lib/cloudinary/client";
+import { uniqueSlug } from "@/lib/utils/slug";
 
 export type CreateCollectionInput = {
   title: string;
@@ -8,6 +10,7 @@ export type CreateCollectionInput = {
 export type UpdateCollectionInput = {
   title?: string;
   description?: string;
+  coverPhotoId?: string | null;
 };
 
 export async function createCollection(
@@ -37,6 +40,21 @@ export async function updateCollection(
     throw new Error("Collection not found");
   }
 
+  if (input.coverPhotoId) {
+    const coverPhoto = await prisma.photo.findFirst({
+      where: {
+        id: input.coverPhotoId,
+        collectionId,
+        collection: { userId },
+      },
+      select: { id: true },
+    });
+
+    if (!coverPhoto) {
+      throw new Error("Cover photo must belong to this collection");
+    }
+  }
+
   return prisma.collection.update({
     where: { id: collectionId },
     data: {
@@ -44,8 +62,33 @@ export async function updateCollection(
       ...(input.description !== undefined
         ? { description: input.description }
         : {}),
+      ...(input.coverPhotoId !== undefined
+        ? { coverPhotoId: input.coverPhotoId }
+        : {}),
     },
   });
+}
+
+export async function deleteCollection(
+  collectionId: string,
+  userId: string,
+): Promise<void> {
+  const collection = await prisma.collection.findFirst({
+    where: { id: collectionId, userId },
+    include: {
+      photos: { select: { cloudinaryPublicId: true } },
+    },
+  });
+
+  if (!collection) {
+    throw new Error("Collection not found");
+  }
+
+  for (const photo of collection.photos) {
+    await deleteCloudinaryImage(photo.cloudinaryPublicId);
+  }
+
+  await prisma.collection.delete({ where: { id: collectionId } });
 }
 
 export async function getCollectionsForUser(userId: string) {
@@ -56,6 +99,7 @@ export async function getCollectionsForUser(userId: string) {
       coverPhoto: {
         select: { thumbnailUrl: true, secureUrl: true },
       },
+      storyPage: { select: { isPublished: true, slug: true } },
       _count: { select: { photos: true } },
     },
   });
@@ -99,3 +143,5 @@ export async function getPublishedStoryBySlug(slug: string) {
     },
   });
 }
+
+// isPublic is tied to story publish state — see story.service.ts

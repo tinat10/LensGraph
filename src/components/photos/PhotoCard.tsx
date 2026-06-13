@@ -1,4 +1,7 @@
+"use client";
+
 import Image from "next/image";
+import type { PhotoTagSummary } from "@/lib/photos/serialize";
 
 export type PhotoCardData = {
   id: string;
@@ -14,10 +17,19 @@ export type PhotoCardData = {
     takenAt: Date | string | null;
     cameraMake: string | null;
     cameraModel: string | null;
+    aiCaption?: string | null;
+    aiMood?: string | null;
+    aiEnrichedAt?: Date | string | null;
+    locationName?: string | null;
+    city?: string | null;
+    country?: string | null;
+    locationGeocodedAt?: Date | string | null;
   } | null;
   colorPalette: {
     dominantHex: string | null;
   } | null;
+  tags?: PhotoTagSummary[];
+  isCover?: boolean;
 };
 
 type PhotoCardProps = {
@@ -25,7 +37,10 @@ type PhotoCardProps = {
   selected?: boolean;
   onSelect?: (photoId: string) => void;
   onDelete?: (photoId: string) => void;
+  onSetCover?: (photoId: string) => void;
   isDeleting?: boolean;
+  isSettingCover?: boolean;
+  readOnly?: boolean;
 };
 
 function formatFileSize(bytes: number | null) {
@@ -39,7 +54,10 @@ export function PhotoCard({
   selected = false,
   onSelect,
   onDelete,
+  onSetCover,
   isDeleting = false,
+  isSettingCover = false,
+  readOnly = false,
 }: PhotoCardProps) {
   const camera = [photo.metadata?.cameraMake, photo.metadata?.cameraModel]
     .filter(Boolean)
@@ -57,8 +75,9 @@ export function PhotoCard({
     >
       <button
         type="button"
-        onClick={() => onSelect?.(photo.id)}
-        className="block w-full text-left"
+        onClick={() => !readOnly && onSelect?.(photo.id)}
+        disabled={readOnly}
+        className={`block w-full text-left ${readOnly ? "cursor-default" : ""}`}
       >
         <div className="relative aspect-[4/3] bg-zinc-100 dark:bg-zinc-900">
           <Image
@@ -68,6 +87,11 @@ export function PhotoCard({
             className="object-cover"
             sizes="(max-width: 768px) 100vw, 33vw"
           />
+          {photo.isCover ? (
+            <span className="absolute left-3 top-3 rounded-full bg-zinc-900/80 px-2.5 py-1 text-xs font-medium text-white">
+              Cover
+            </span>
+          ) : null}
           {accent ? (
             <span
               className="absolute bottom-3 right-3 h-5 w-5 rounded-full border border-white/70 shadow"
@@ -83,17 +107,43 @@ export function PhotoCard({
           <p className="truncate text-sm font-medium text-zinc-900 dark:text-zinc-100">
             {photo.originalFilename}
           </p>
-          {onDelete ? (
-            <button
-              type="button"
-              onClick={() => onDelete(photo.id)}
-              disabled={isDeleting}
-              className="shrink-0 text-xs text-red-600 hover:text-red-700 disabled:opacity-50"
-            >
-              {isDeleting ? "Deleting..." : "Delete"}
-            </button>
-          ) : null}
+          <div className="flex shrink-0 gap-2">
+            {onSetCover && !photo.isCover ? (
+              <button
+                type="button"
+                onClick={() => onSetCover(photo.id)}
+                disabled={isSettingCover}
+                className="text-xs text-zinc-600 hover:text-zinc-900 disabled:opacity-50 dark:text-zinc-400 dark:hover:text-zinc-100"
+              >
+                {isSettingCover ? "Saving..." : "Set cover"}
+              </button>
+            ) : null}
+            {onDelete ? (
+              <button
+                type="button"
+                onClick={() => onDelete(photo.id)}
+                disabled={isDeleting}
+                className="text-xs text-red-600 hover:text-red-700 disabled:opacity-50"
+              >
+                {isDeleting ? "Deleting..." : "Delete"}
+              </button>
+            ) : null}
+          </div>
         </div>
+
+        {photo.tags && photo.tags.length > 0 ? (
+          <div className="flex flex-wrap gap-1.5">
+            {photo.tags.map((tag) => (
+              <span
+                key={tag.id}
+                className="rounded-full bg-zinc-100 px-2 py-0.5 text-[11px] text-zinc-600 dark:bg-zinc-900 dark:text-zinc-400"
+              >
+                {tag.name}
+              </span>
+            ))}
+          </div>
+        ) : null}
+
         <p className="text-xs text-zinc-500">
           {photo.metadata?.takenAt
             ? new Date(photo.metadata.takenAt).toLocaleString()

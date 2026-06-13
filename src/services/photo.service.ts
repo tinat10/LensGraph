@@ -1,5 +1,5 @@
-import { prisma } from "@/lib/db/prisma";
 import type { Prisma } from "@/generated/prisma/client";
+import { prisma } from "@/lib/db/prisma";
 import {
   buildThumbnailUrl,
   deleteCloudinaryImage,
@@ -75,9 +75,6 @@ export async function uploadPhotosToCollection(
       },
     });
 
-    // TODO(OpenAI Vision): Queue async job to generate AI tags and captions
-    // TODO(Mapbox): Queue async job to reverse-geocode GPS coordinates
-
     results.push({
       id: photo.id,
       originalFilename: photo.originalFilename,
@@ -125,6 +122,3 @@ export async function deletePhoto(photoId: string, userId: string): Promise<void
     }),
   ]);
 }
-
-// TODO: Implement searchPhotos() with filters for tags, date, camera, color, collection
-// TODO(pgvector): Extend searchPhotos() with semantic similarity queries
