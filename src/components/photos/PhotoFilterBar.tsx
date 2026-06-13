@@ -7,15 +7,18 @@ import { Input } from "@/components/ui/Input";
 export type PhotoFilterValues = {
   query: string;
   tag: string;
+  location: string;
   cameraMake: string;
   cameraModel: string;
   colorHex: string;
   takenAfter: string;
   takenBefore: string;
+  semanticQuery: string;
 };
 
 export type PhotoFilterOptions = {
   tags: string[];
+  locations: string[];
   cameraMakes: string[];
   cameraModels: string[];
   colors: string[];
@@ -23,8 +26,10 @@ export type PhotoFilterOptions = {
 
 type PhotoFilterBarProps = {
   options: PhotoFilterOptions;
+  selectedPhotoId?: string | null;
   onApply: (filters: PhotoFilterValues) => void;
   onClear: () => void;
+  onFindSimilar?: (photoId: string) => void;
   isLoading?: boolean;
   resultCount?: number;
 };
@@ -32,17 +37,21 @@ type PhotoFilterBarProps = {
 const emptyFilters: PhotoFilterValues = {
   query: "",
   tag: "",
+  location: "",
   cameraMake: "",
   cameraModel: "",
   colorHex: "",
   takenAfter: "",
   takenBefore: "",
+  semanticQuery: "",
 };
 
 export function PhotoFilterBar({
   options,
+  selectedPhotoId,
   onApply,
   onClear,
+  onFindSimilar,
   isLoading = false,
   resultCount,
 }: PhotoFilterBarProps) {
@@ -82,6 +91,16 @@ export function PhotoFilterBar({
           ) : null}
         </div>
         <div className="flex gap-2">
+          {selectedPhotoId && onFindSimilar ? (
+            <Button
+              type="button"
+              variant="secondary"
+              disabled={isLoading}
+              onClick={() => onFindSimilar(selectedPhotoId)}
+            >
+              Similar to selected
+            </Button>
+          ) : null}
           <Button type="button" variant="secondary" onClick={handleClear}>
             Clear
           </Button>
@@ -98,6 +117,11 @@ export function PhotoFilterBar({
           onChange={(event) => updateField("query", event.target.value)}
         />
         <Input
+          placeholder="Natural language search"
+          value={filters.semanticQuery}
+          onChange={(event) => updateField("semanticQuery", event.target.value)}
+        />
+        <Input
           placeholder="Tag"
           list="photo-filter-tags"
           value={filters.tag}
@@ -106,6 +130,17 @@ export function PhotoFilterBar({
         <datalist id="photo-filter-tags">
           {options.tags.map((tag) => (
             <option key={tag} value={tag} />
+          ))}
+        </datalist>
+        <Input
+          placeholder="Location"
+          list="photo-filter-locations"
+          value={filters.location}
+          onChange={(event) => updateField("location", event.target.value)}
+        />
+        <datalist id="photo-filter-locations">
+          {options.locations.map((location) => (
+            <option key={location} value={location} />
           ))}
         </datalist>
         <Input
@@ -185,14 +220,20 @@ export function PhotoFilterBar({
   );
 }
 
-export function buildPhotoSearchQuery(filters: PhotoFilterValues) {
+export function buildPhotoSearchQuery(
+  filters: PhotoFilterValues,
+  similarToPhotoId?: string,
+) {
   const params = new URLSearchParams();
   if (filters.query) params.set("query", filters.query);
+  if (filters.semanticQuery) params.set("semanticQuery", filters.semanticQuery);
   if (filters.tag) params.set("tag", filters.tag);
+  if (filters.location) params.set("location", filters.location);
   if (filters.cameraMake) params.set("cameraMake", filters.cameraMake);
   if (filters.cameraModel) params.set("cameraModel", filters.cameraModel);
   if (filters.colorHex) params.set("colorHex", filters.colorHex);
   if (filters.takenAfter) params.set("takenAfter", filters.takenAfter);
   if (filters.takenBefore) params.set("takenBefore", filters.takenBefore);
+  if (similarToPhotoId) params.set("similarToPhotoId", similarToPhotoId);
   return params.toString();
 }

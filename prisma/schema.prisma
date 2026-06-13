@@ -1,5 +1,4 @@
 // LensGraph — Phase 1 schema
-// TODO(pgvector): Add embedding columns for semantic photo search
 
 generator client {
   provider = "prisma-client"
@@ -119,13 +118,20 @@ model PhotoMetadata {
   latitude     Float?
   longitude    Float?
   rawExifJson  Json?
-  aiCaption    String?
-  aiMood       String?
-  aiEnrichedAt DateTime?
-  // TODO(Mapbox): Reverse-geocode GPS into location tags
+  aiCaption          String?
+  aiMood             String?
+  aiEnrichedAt       DateTime?
+  locationName       String?
+  city               String?
+  country            String?
+  locationGeocodedAt DateTime?
+  embedding          Unsupported("vector(1536)")?
+  embeddingUpdatedAt DateTime?
 
   @@index([takenAt])
   @@index([cameraMake, cameraModel])
+  @@index([city])
+  @@index([country])
 }
 
 model PhotoColorPalette {
@@ -145,7 +151,6 @@ model Tag {
   type      TagType    @default(MANUAL)
   photos    PhotoTag[]
   createdAt DateTime   @default(now())
-  // TODO(pgvector): Store embedding vector for semantic search
 }
 
 enum TagType {
@@ -176,7 +181,6 @@ model StoryPage {
   isPublished  Boolean    @default(false)
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
-  // TODO(OpenWeather): Attach ambient weather context to published story pages
 
   @@index([slug])
 }

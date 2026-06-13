@@ -5,4 +5,4 @@ export {
 } from "./colors";
 
 // AI vision analysis lives in @/lib/openai/vision
-// TODO(pgvector): Add generatePhotoEmbedding() for semantic search indexing
+// Semantic embeddings live in @/lib/openai/embeddings.ts

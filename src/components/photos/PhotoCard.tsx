@@ -20,6 +20,10 @@ export type PhotoCardData = {
     aiCaption?: string | null;
     aiMood?: string | null;
     aiEnrichedAt?: Date | string | null;
+    locationName?: string | null;
+    city?: string | null;
+    country?: string | null;
+    locationGeocodedAt?: Date | string | null;
   } | null;
   colorPalette: {
     dominantHex: string | null;

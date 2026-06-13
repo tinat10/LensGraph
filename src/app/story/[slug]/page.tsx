@@ -1,7 +1,9 @@
 import { notFound } from "next/navigation";
 import { PhotoGrid } from "@/components/photos/PhotoGrid";
+import { StoryWeatherBanner } from "@/components/story/StoryWeatherBanner";
 import { serializePhoto } from "@/lib/photos/serialize";
 import { getPublishedStoryBySlug } from "@/services/collection.service";
+import { getStoryWeatherContext } from "@/services/story-weather.service";
 
 type StoryPageProps = {
   params: Promise<{ slug: string }>;
@@ -17,6 +19,11 @@ export default async function PublicStoryPage({ params }: StoryPageProps) {
 
   const photos = story.collection.photos.map((photo) =>
     serializePhoto(photo, story.collection.coverPhotoId),
+  );
+
+  const weather = await getStoryWeatherContext(
+    story.collectionId,
+    story.collection.coverPhotoId,
   );
 
   return (
@@ -36,7 +43,7 @@ export default async function PublicStoryPage({ params }: StoryPageProps) {
         <p className="mt-6 text-sm text-zinc-500">
           {photos.length} photo{photos.length === 1 ? "" : "s"}
         </p>
-        {/* TODO(OpenWeather): Display ambient weather for story context */}
+        {weather ? <StoryWeatherBanner weather={weather} /> : null}
       </section>
 
       <section className="mx-auto max-w-6xl px-6 pb-20">

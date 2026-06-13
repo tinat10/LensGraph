@@ -10,11 +10,14 @@ export type PhotoSearchFilters = {
   collectionId?: string;
   query?: string;
   tag?: string;
+  location?: string;
   cameraMake?: string;
   cameraModel?: string;
   colorHex?: string;
   takenAfter?: Date;
   takenBefore?: Date;
+  semanticQuery?: string;
+  similarToPhotoId?: string;
 };
 
 type PrismaPhoto = {
@@ -64,10 +67,14 @@ export function parsePhotoSearchParams(
     collectionId,
     query: searchParams.get("query")?.trim() || undefined,
     tag: searchParams.get("tag")?.trim() || undefined,
+    location: searchParams.get("location")?.trim() || undefined,
     cameraMake: searchParams.get("cameraMake")?.trim() || undefined,
     cameraModel: searchParams.get("cameraModel")?.trim() || undefined,
     colorHex: searchParams.get("colorHex")?.trim() || undefined,
     takenAfter: takenAfter ? new Date(takenAfter) : undefined,
     takenBefore: takenBefore ? new Date(takenBefore) : undefined,
+    semanticQuery: searchParams.get("semanticQuery")?.trim() || undefined,
+    similarToPhotoId:
+      searchParams.get("similarToPhotoId")?.trim() || undefined,
   };
 }

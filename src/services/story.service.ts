@@ -141,5 +141,3 @@ export async function unpublishStory(collectionId: string, userId: string) {
     }),
   ]);
 }
-
-// TODO(OpenWeather): Attach ambient weather context when publishing story pages

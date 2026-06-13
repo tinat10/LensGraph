@@ -1,8 +1,12 @@
 import { after, NextResponse } from "next/server";
 import { auth } from "@/lib/auth/auth";
+import { isMapboxConfigured } from "@/lib/mapbox/client";
 import { isOpenAiConfigured } from "@/lib/openai/client";
 import { schedulePhotoEnrichment } from "@/services/photo-enrichment.service";
+import { schedulePhotoGeocoding } from "@/services/photo-location.service";
 import { uploadPhotosToCollection } from "@/services/photo.service";
+
+export const maxDuration = 60;
 
 const MAX_FILES = 20;
 const MAX_FILE_SIZE = 15 * 1024 * 1024;
@@ -61,16 +65,17 @@ export async function POST(request: Request) {
       files,
     );
 
-    if (isOpenAiConfigured()) {
-      after(() => {
-        schedulePhotoEnrichment(photos.map((photo) => photo.id));
-      });
-    }
+    after(() => {
+      const photoIds = photos.map((photo) => photo.id);
+      schedulePhotoEnrichment(photoIds);
+      schedulePhotoGeocoding(photoIds);
+    });
 
     return NextResponse.json(
       {
         photos,
         enrichmentQueued: isOpenAiConfigured(),
+        geocodingQueued: isMapboxConfigured(),
       },
       { status: 201 },
     );

@@ -86,6 +86,24 @@ export function CollectionGallery({
     await fetchPhotos(buildPhotoSearchQuery(filters));
   }
 
+  async function handleFindSimilar(photoId: string) {
+    await fetchPhotos(buildPhotoSearchQuery(emptyFiltersFromBar(), photoId));
+  }
+
+  function emptyFiltersFromBar(): PhotoFilterValues {
+    return {
+      query: "",
+      tag: "",
+      location: "",
+      cameraMake: "",
+      cameraModel: "",
+      colorHex: "",
+      takenAfter: "",
+      takenBefore: "",
+      semanticQuery: "",
+    };
+  }
+
   async function handleClearFilters() {
     await fetchPhotos("");
   }
@@ -121,6 +139,38 @@ export function CollectionGallery({
                 aiCaption: data.aiCaption,
                 aiMood: data.aiMood,
                 aiEnrichedAt: new Date().toISOString(),
+              },
+            }
+          : photo,
+      ),
+    );
+  }
+
+  function handlePhotoGeocoded(
+    photoId: string,
+    data: {
+      locationName: string;
+      city: string | null;
+      country: string | null;
+      tags: PhotoTagSummary[];
+    },
+  ) {
+    setPhotos((current) =>
+      current.map((photo) =>
+        photo.id === photoId
+          ? {
+              ...photo,
+              tags: data.tags,
+              metadata: {
+                ...(photo.metadata ?? {
+                  takenAt: null,
+                  cameraMake: null,
+                  cameraModel: null,
+                }),
+                locationName: data.locationName,
+                city: data.city,
+                country: data.country,
+                locationGeocodedAt: new Date().toISOString(),
               },
             }
           : photo,
@@ -204,8 +254,10 @@ export function CollectionGallery({
     <div className="space-y-6">
       <PhotoFilterBar
         options={options}
+        selectedPhotoId={selectedPhotoId}
         onApply={handleApplyFilters}
         onClear={handleClearFilters}
+        onFindSimilar={handleFindSimilar}
         isLoading={isFiltering}
         resultCount={resultCount}
       />
@@ -231,6 +283,7 @@ export function CollectionGallery({
           photo={selectedPhoto}
           onTagsChange={handleTagsChange}
           onEnriched={handlePhotoEnriched}
+          onGeocoded={handlePhotoGeocoded}
         />
       </div>
     </div>

@@ -59,5 +59,3 @@ export async function analyzePhotoWithVision(
 
   return visionAnalysisSchema.parse(parsed);
 }
-
-// TODO(pgvector): Add generatePhotoEmbedding() for semantic search indexing

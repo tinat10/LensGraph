@@ -75,8 +75,6 @@ export async function uploadPhotosToCollection(
       },
     });
 
-    // TODO(Mapbox): Queue async job to reverse-geocode GPS coordinates
-
     results.push({
       id: photo.id,
       originalFilename: photo.originalFilename,

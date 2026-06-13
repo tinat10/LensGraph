@@ -2,6 +2,7 @@ import type { TagType } from "@/generated/prisma/client";
 import { prisma } from "@/lib/db/prisma";
 import { isOpenAiConfigured } from "@/lib/openai/client";
 import { analyzePhotoWithVision } from "@/lib/openai/vision";
+import { schedulePhotoEmbedding } from "@/services/photo-embedding.service";
 import { normalizeTagName } from "@/services/photo-tags.service";
 
 export type EnrichmentResult = {
@@ -115,12 +116,16 @@ export async function enrichPhotoById(photoId: string): Promise<EnrichmentResult
     ...attachedTags,
   ];
 
-  return {
+  const result = {
     photoId,
     aiCaption: analysis.caption,
     aiMood: analysis.mood,
     tags: allTags,
   };
+
+  schedulePhotoEmbedding([photoId]);
+
+  return result;
 }
 
 export async function enrichPhotoForUser(
@@ -160,4 +165,4 @@ export function schedulePhotoEnrichment(photoIds: string[]) {
   }
 }
 
-// TODO(Mapbox): Add enrichPhotoLocation() for GPS reverse geocoding
+// Location geocoding lives in photo-location.service.ts
