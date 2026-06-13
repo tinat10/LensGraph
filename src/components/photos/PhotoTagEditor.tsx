@@ -88,12 +88,21 @@ export function PhotoTagEditor({
         {tags.length === 0 ? (
           <p className="text-sm text-zinc-500">No tags yet</p>
         ) : (
-          tags.map((tag) => (
+          tags.map((tag) => {
+            const isManual = tag.type === "MANUAL";
+
+            return (
             <span
               key={tag.id}
               className="inline-flex items-center gap-2 rounded-full bg-zinc-100 px-3 py-1 text-xs text-zinc-700 dark:bg-zinc-900 dark:text-zinc-300"
             >
+              {tag.type !== "MANUAL" ? (
+                <span className="rounded bg-zinc-200 px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-zinc-500 dark:bg-zinc-800">
+                  {tag.type.toLowerCase()}
+                </span>
+              ) : null}
               {tag.name}
+              {isManual ? (
               <button
                 type="button"
                 onClick={() => handleRemoveTag(tag.id)}
@@ -103,8 +112,10 @@ export function PhotoTagEditor({
               >
                 ×
               </button>
+              ) : null}
             </span>
-          ))
+            );
+          })
         )}
       </div>
 
@@ -121,8 +132,6 @@ export function PhotoTagEditor({
       </form>
 
       {error ? <p className="mt-2 text-sm text-red-600">{error}</p> : null}
-
-      {/* TODO(OpenAI Vision): Display AI-generated tags alongside manual tags */}
     </div>
   );
 }

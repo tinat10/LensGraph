@@ -57,4 +57,4 @@ export async function removeTagFromPhoto(
   });
 }
 
-// TODO(OpenAI Vision): Add attachAiTagsToPhoto() for AI-generated tags
+// AI-generated tags are attached via photo-enrichment.service.ts

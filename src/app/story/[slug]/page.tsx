@@ -42,6 +42,7 @@ export default async function PublicStoryPage({ params }: StoryPageProps) {
       <section className="mx-auto max-w-6xl px-6 pb-20">
         <PhotoGrid
           photos={photos}
+          readOnly
           emptyTitle="No photos in this story"
           emptyDescription="The collection owner has not uploaded photos yet."
         />

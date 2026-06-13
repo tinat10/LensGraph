@@ -119,8 +119,10 @@ model PhotoMetadata {
   latitude     Float?
   longitude    Float?
   rawExifJson  Json?
+  aiCaption    String?
+  aiMood       String?
+  aiEnrichedAt DateTime?
   // TODO(Mapbox): Reverse-geocode GPS into location tags
-  // TODO(OpenAI Vision): AI-generated captions and subject labels
 
   @@index([takenAt])
   @@index([cameraMake, cameraModel])

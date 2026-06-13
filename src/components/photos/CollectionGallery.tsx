@@ -98,6 +98,36 @@ export function CollectionGallery({
     );
   }
 
+  function handlePhotoEnriched(
+    photoId: string,
+    data: {
+      aiCaption: string;
+      aiMood: string;
+      tags: PhotoTagSummary[];
+    },
+  ) {
+    setPhotos((current) =>
+      current.map((photo) =>
+        photo.id === photoId
+          ? {
+              ...photo,
+              tags: data.tags,
+              metadata: {
+                ...(photo.metadata ?? {
+                  takenAt: null,
+                  cameraMake: null,
+                  cameraModel: null,
+                }),
+                aiCaption: data.aiCaption,
+                aiMood: data.aiMood,
+                aiEnrichedAt: new Date().toISOString(),
+              },
+            }
+          : photo,
+      ),
+    );
+  }
+
   async function handleDeletePhoto(photoId: string) {
     const confirmed = window.confirm("Delete this photo permanently?");
     if (!confirmed) return;
@@ -200,6 +230,7 @@ export function CollectionGallery({
         <MetadataPanel
           photo={selectedPhoto}
           onTagsChange={handleTagsChange}
+          onEnriched={handlePhotoEnriched}
         />
       </div>
     </div>

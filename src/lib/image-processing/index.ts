@@ -4,5 +4,5 @@ export {
   type ExtractedColorPalette,
 } from "./colors";
 
-// TODO(OpenAI Vision): Add analyzePhotoWithVision() for AI captions and semantic tags
+// AI vision analysis lives in @/lib/openai/vision
 // TODO(pgvector): Add generatePhotoEmbedding() for semantic search indexing

@@ -75,7 +75,6 @@ export async function uploadPhotosToCollection(
       },
     });
 
-    // TODO(OpenAI Vision): Queue async job to generate AI tags and captions
     // TODO(Mapbox): Queue async job to reverse-geocode GPS coordinates
 
     results.push({

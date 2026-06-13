@@ -1,5 +1,7 @@
-import { NextResponse } from "next/server";
+import { after, NextResponse } from "next/server";
 import { auth } from "@/lib/auth/auth";
+import { isOpenAiConfigured } from "@/lib/openai/client";
+import { schedulePhotoEnrichment } from "@/services/photo-enrichment.service";
 import { uploadPhotosToCollection } from "@/services/photo.service";
 
 const MAX_FILES = 20;
@@ -59,7 +61,19 @@ export async function POST(request: Request) {
       files,
     );
 
-    return NextResponse.json({ photos }, { status: 201 });
+    if (isOpenAiConfigured()) {
+      after(() => {
+        schedulePhotoEnrichment(photos.map((photo) => photo.id));
+      });
+    }
+
+    return NextResponse.json(
+      {
+        photos,
+        enrichmentQueued: isOpenAiConfigured(),
+      },
+      { status: 201 },
+    );
   } catch (error) {
     console.error("[photos/upload]", error);
 

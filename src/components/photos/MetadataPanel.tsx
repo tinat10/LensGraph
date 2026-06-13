@@ -2,11 +2,20 @@
 
 import type { PhotoCardData } from "@/components/photos/PhotoCard";
 import { PhotoTagEditor } from "@/components/photos/PhotoTagEditor";
+import { AiInsightsPanel } from "@/components/photos/AiInsightsPanel";
 import type { PhotoTagSummary } from "@/lib/photos/serialize";
 
 type MetadataPanelProps = {
   photo: PhotoCardData | null;
   onTagsChange?: (photoId: string, tags: PhotoTagSummary[]) => void;
+  onEnriched?: (
+    photoId: string,
+    data: {
+      aiCaption: string;
+      aiMood: string;
+      tags: PhotoTagSummary[];
+    },
+  ) => void;
 };
 
 function formatValue(value: string | number | null | undefined) {
@@ -22,7 +31,7 @@ function formatShutterSpeed(value: number | null | undefined) {
   return `1/${Math.round(1 / value)}s`;
 }
 
-export function MetadataPanel({ photo, onTagsChange }: MetadataPanelProps) {
+export function MetadataPanel({ photo, onTagsChange, onEnriched }: MetadataPanelProps) {
   if (!photo) {
     return (
       <aside className="rounded-2xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-950">
@@ -44,6 +53,9 @@ export function MetadataPanel({ photo, onTagsChange }: MetadataPanelProps) {
     focalLength?: number | null;
     latitude?: number | null;
     longitude?: number | null;
+    aiCaption?: string | null;
+    aiMood?: string | null;
+    aiEnrichedAt?: string | Date | null;
   } | null;
 
   const palette = photo.colorPalette as PhotoCardData["colorPalette"] & {
@@ -139,13 +151,24 @@ export function MetadataPanel({ photo, onTagsChange }: MetadataPanelProps) {
         </div>
       ) : null}
 
+      <AiInsightsPanel
+        photoId={photo.id}
+        aiCaption={metadata?.aiCaption}
+        aiMood={metadata?.aiMood}
+        aiEnrichedAt={
+          metadata?.aiEnrichedAt
+            ? new Date(metadata.aiEnrichedAt).toISOString()
+            : null
+        }
+        onEnriched={(data) => onEnriched?.(photo.id, data)}
+      />
+
       <PhotoTagEditor
         photoId={photo.id}
         tags={photo.tags ?? []}
         onTagsChange={(tags) => onTagsChange?.(photo.id, tags)}
       />
 
-      {/* TODO(OpenAI Vision): Display AI caption here */}
       {/* TODO(Mapbox): Display reverse-geocoded location name here */}
     </aside>
   );

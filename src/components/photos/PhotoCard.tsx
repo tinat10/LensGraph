@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 import type { PhotoTagSummary } from "@/lib/photos/serialize";
 
@@ -15,6 +17,9 @@ export type PhotoCardData = {
     takenAt: Date | string | null;
     cameraMake: string | null;
     cameraModel: string | null;
+    aiCaption?: string | null;
+    aiMood?: string | null;
+    aiEnrichedAt?: Date | string | null;
   } | null;
   colorPalette: {
     dominantHex: string | null;
@@ -31,6 +36,7 @@ type PhotoCardProps = {
   onSetCover?: (photoId: string) => void;
   isDeleting?: boolean;
   isSettingCover?: boolean;
+  readOnly?: boolean;
 };
 
 function formatFileSize(bytes: number | null) {
@@ -47,6 +53,7 @@ export function PhotoCard({
   onSetCover,
   isDeleting = false,
   isSettingCover = false,
+  readOnly = false,
 }: PhotoCardProps) {
   const camera = [photo.metadata?.cameraMake, photo.metadata?.cameraModel]
     .filter(Boolean)
@@ -64,8 +71,9 @@ export function PhotoCard({
     >
       <button
         type="button"
-        onClick={() => onSelect?.(photo.id)}
-        className="block w-full text-left"
+        onClick={() => !readOnly && onSelect?.(photo.id)}
+        disabled={readOnly}
+        className={`block w-full text-left ${readOnly ? "cursor-default" : ""}`}
       >
         <div className="relative aspect-[4/3] bg-zinc-100 dark:bg-zinc-900">
           <Image
