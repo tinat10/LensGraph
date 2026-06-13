@@ -6,7 +6,9 @@ type PhotoGridProps = {
   selectedPhotoId?: string | null;
   onSelectPhoto?: (photoId: string) => void;
   onDeletePhoto?: (photoId: string) => void;
+  onSetCover?: (photoId: string) => void;
   deletingPhotoId?: string | null;
+  settingCoverPhotoId?: string | null;
   emptyTitle?: string;
   emptyDescription?: string;
   emptyAction?: React.ReactNode;
@@ -17,7 +19,9 @@ export function PhotoGrid({
   selectedPhotoId,
   onSelectPhoto,
   onDeletePhoto,
+  onSetCover,
   deletingPhotoId,
+  settingCoverPhotoId,
   emptyTitle = "No photos yet",
   emptyDescription = "Upload images to start building this collection.",
   emptyAction,
@@ -41,7 +45,9 @@ export function PhotoGrid({
           selected={selectedPhotoId === photo.id}
           onSelect={onSelectPhoto}
           onDelete={onDeletePhoto}
+          onSetCover={onSetCover}
           isDeleting={deletingPhotoId === photo.id}
+          isSettingCover={settingCoverPhotoId === photo.id}
         />
       ))}
     </div>

@@ -1,11 +1,15 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { CollectionEditForm } from "@/components/collections/CollectionEditForm";
+import { DeleteCollectionButton } from "@/components/collections/DeleteCollectionButton";
+import { PublishStoryPanel } from "@/components/collections/PublishStoryPanel";
 import { Header } from "@/components/layout/Header";
 import { CollectionGallery } from "@/components/photos/CollectionGallery";
 import { Button } from "@/components/ui/Button";
+import { serializePhoto } from "@/lib/photos/serialize";
 import { auth } from "@/lib/auth/auth";
 import { getCollectionForUser } from "@/services/collection.service";
+import { getDistinctFilterOptions } from "@/services/photo-search.service";
 
 type CollectionPageProps = {
   params: Promise<{ id: string }>;
@@ -24,19 +28,13 @@ export default async function CollectionDetailPage({ params }: CollectionPagePro
     notFound();
   }
 
-  const photos = collection.photos.map((photo) => ({
-    id: photo.id,
-    originalFilename: photo.originalFilename,
-    secureUrl: photo.secureUrl,
-    thumbnailUrl: photo.thumbnailUrl,
-    format: photo.format,
-    width: photo.width,
-    height: photo.height,
-    fileSize: photo.fileSize,
-    uploadedAt: photo.uploadedAt.toISOString(),
-    metadata: photo.metadata,
-    colorPalette: photo.colorPalette,
-  }));
+  const [filterOptions] = await Promise.all([
+    getDistinctFilterOptions(session.user.id, id),
+  ]);
+
+  const photos = collection.photos.map((photo) =>
+    serializePhoto(photo, collection.coverPhotoId),
+  );
 
   return (
     <>
@@ -50,28 +48,43 @@ export default async function CollectionDetailPage({ params }: CollectionPagePro
             ← Back to dashboard
           </Link>
 
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <CollectionEditForm
               collectionId={collection.id}
               initialTitle={collection.title}
               initialDescription={collection.description}
             />
-            <div className="flex shrink-0 gap-3">
-              <Link href={`/collections/${collection.id}/upload`}>
-                <Button>Upload photos</Button>
-              </Link>
-              {/* TODO: Publish story page flow */}
-              <Button variant="secondary" disabled>
-                Publish story
-              </Button>
+            <div className="flex shrink-0 flex-col items-start gap-3">
+              <div className="flex flex-wrap gap-3">
+                <Link href={`/collections/${collection.id}/upload`}>
+                  <Button>Upload photos</Button>
+                </Link>
+                <PublishStoryPanel
+                  collectionId={collection.id}
+                  collectionTitle={collection.title}
+                  initialStory={collection.storyPage}
+                />
+              </div>
+              {collection.isPublic ? (
+                <p className="text-xs text-emerald-600">
+                  Public — story is published
+                </p>
+              ) : (
+                <p className="text-xs text-zinc-500">Private collection</p>
+              )}
+              <DeleteCollectionButton
+                collectionId={collection.id}
+                collectionTitle={collection.title}
+              />
             </div>
           </div>
         </div>
 
-        {/* TODO: Add search/filter bar for tags, date, camera, and color */}
         <CollectionGallery
           collectionId={collection.id}
+          coverPhotoId={collection.coverPhotoId}
           initialPhotos={photos}
+          filterOptions={filterOptions}
         />
       </main>
     </>

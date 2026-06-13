@@ -1,7 +1,12 @@
+"use client";
+
 import type { PhotoCardData } from "@/components/photos/PhotoCard";
+import { PhotoTagEditor } from "@/components/photos/PhotoTagEditor";
+import type { PhotoTagSummary } from "@/lib/photos/serialize";
 
 type MetadataPanelProps = {
   photo: PhotoCardData | null;
+  onTagsChange?: (photoId: string, tags: PhotoTagSummary[]) => void;
 };
 
 function formatValue(value: string | number | null | undefined) {
@@ -17,7 +22,7 @@ function formatShutterSpeed(value: number | null | undefined) {
   return `1/${Math.round(1 / value)}s`;
 }
 
-export function MetadataPanel({ photo }: MetadataPanelProps) {
+export function MetadataPanel({ photo, onTagsChange }: MetadataPanelProps) {
   if (!photo) {
     return (
       <aside className="rounded-2xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-950">
@@ -25,7 +30,7 @@ export function MetadataPanel({ photo }: MetadataPanelProps) {
           Metadata
         </h2>
         <p className="mt-4 text-sm text-zinc-600 dark:text-zinc-400">
-          Select a photo to inspect EXIF details and color analysis.
+          Select a photo to inspect EXIF details, tags, and color analysis.
         </p>
       </aside>
     );
@@ -55,10 +60,7 @@ export function MetadataPanel({ photo }: MetadataPanelProps) {
       "Dimensions",
       photo.width && photo.height ? `${photo.width} × ${photo.height}` : "—",
     ],
-    [
-      "Uploaded",
-      new Date(photo.uploadedAt).toLocaleString(),
-    ],
+    ["Uploaded", new Date(photo.uploadedAt).toLocaleString()],
     [
       "Taken",
       metadata?.takenAt
@@ -137,7 +139,13 @@ export function MetadataPanel({ photo }: MetadataPanelProps) {
         </div>
       ) : null}
 
-      {/* TODO(OpenAI Vision): Display AI caption and subject tags here */}
+      <PhotoTagEditor
+        photoId={photo.id}
+        tags={photo.tags ?? []}
+        onTagsChange={(tags) => onTagsChange?.(photo.id, tags)}
+      />
+
+      {/* TODO(OpenAI Vision): Display AI caption here */}
       {/* TODO(Mapbox): Display reverse-geocoded location name here */}
     </aside>
   );

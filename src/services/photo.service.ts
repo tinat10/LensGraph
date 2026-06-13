@@ -1,5 +1,5 @@
-import { prisma } from "@/lib/db/prisma";
 import type { Prisma } from "@/generated/prisma/client";
+import { prisma } from "@/lib/db/prisma";
 import {
   buildThumbnailUrl,
   deleteCloudinaryImage,
@@ -125,6 +125,3 @@ export async function deletePhoto(photoId: string, userId: string): Promise<void
     }),
   ]);
 }
-
-// TODO: Implement searchPhotos() with filters for tags, date, camera, color, collection
-// TODO(pgvector): Extend searchPhotos() with semantic similarity queries
