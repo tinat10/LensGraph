@@ -12,17 +12,15 @@ export default async function SignInPage() {
   return (
     <>
       <Header />
-      <main className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-md flex-col justify-center px-6 py-16">
-        <div className="rounded-3xl border border-zinc-200 bg-white p-8 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
-          <p className="mb-2 text-sm font-medium uppercase tracking-[0.2em] text-zinc-500">
-            Welcome
-          </p>
-          <h1 className="mb-3 text-3xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
+      <main className="page-shell flex min-h-[calc(100vh-4.25rem)] max-w-lg flex-col justify-center py-16">
+        <div className="surface-panel p-8 sm:p-10">
+          <p className="eyebrow mb-4">Welcome</p>
+          <h1 className="font-display text-4xl tracking-tight text-ink">
             Sign in to LensGraph
           </h1>
-          <p className="mb-8 text-sm leading-6 text-zinc-600 dark:text-zinc-400">
-            Build searchable photo collections with EXIF metadata, color palettes,
-            and story pages.
+          <p className="mb-8 mt-4 text-sm leading-7 text-muted">
+            Build searchable photo collections with EXIF metadata, AI enrichment,
+            and publishable story pages.
           </p>
           <form
             action={async () => {

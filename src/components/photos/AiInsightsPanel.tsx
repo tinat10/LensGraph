@@ -59,11 +59,9 @@ export function AiInsightsPanel({
   const hasAnalysis = Boolean(aiCaption || aiMood);
 
   return (
-    <div className="mt-6 border-t border-zinc-200 pt-6 dark:border-zinc-800">
+    <div className="mt-6 border-t border-line pt-6">
       <div className="mb-3 flex items-center justify-between gap-3">
-        <p className="text-xs font-medium uppercase tracking-[0.15em] text-zinc-500">
-          AI insights
-        </p>
+        <p className="eyebrow">AI insights</p>
         <Button
           type="button"
           variant="secondary"
@@ -82,26 +80,26 @@ export function AiInsightsPanel({
         <div className="space-y-3 text-sm">
           {aiCaption ? (
             <div>
-              <p className="mb-1 text-zinc-500">Caption</p>
-              <p className="leading-6 text-zinc-900 dark:text-zinc-100">
+              <p className="mb-1 text-muted">Caption</p>
+              <p className="leading-6 text-ink">
                 {aiCaption}
               </p>
             </div>
           ) : null}
           {aiMood ? (
             <div>
-              <p className="mb-1 text-zinc-500">Mood</p>
-              <p className="text-zinc-900 dark:text-zinc-100">{aiMood}</p>
+              <p className="mb-1 text-muted">Mood</p>
+              <p className="text-ink">{aiMood}</p>
             </div>
           ) : null}
           {aiEnrichedAt ? (
-            <p className="text-xs text-zinc-400">
+            <p className="text-xs text-subtle">
               Analyzed {new Date(aiEnrichedAt).toLocaleString()}
             </p>
           ) : null}
         </div>
       ) : (
-        <p className="text-sm text-zinc-600 dark:text-zinc-400">
+        <p className="text-sm text-muted">
           {isAnalyzing
             ? "OpenAI Vision is generating a caption, mood, and tags..."
             : "Run AI analysis to generate a caption, mood, and searchable tags."}

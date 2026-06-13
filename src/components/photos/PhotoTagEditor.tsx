@@ -79,14 +79,12 @@ export function PhotoTagEditor({
   }
 
   return (
-    <div className="mt-6 border-t border-zinc-200 pt-6 dark:border-zinc-800">
-      <p className="mb-3 text-xs font-medium uppercase tracking-[0.15em] text-zinc-500">
-        Tags
-      </p>
+    <div className="mt-6 border-t border-line pt-6">
+      <p className="eyebrow mb-3">Tags</p>
 
       <div className="mb-3 flex flex-wrap gap-2">
         {tags.length === 0 ? (
-          <p className="text-sm text-zinc-500">No tags yet</p>
+          <p className="text-sm text-muted">No tags yet</p>
         ) : (
           tags.map((tag) => {
             const isManual = tag.type === "MANUAL";
@@ -94,10 +92,10 @@ export function PhotoTagEditor({
             return (
             <span
               key={tag.id}
-              className="inline-flex items-center gap-2 rounded-full bg-zinc-100 px-3 py-1 text-xs text-zinc-700 dark:bg-zinc-900 dark:text-zinc-300"
+              className="inline-flex items-center gap-2 rounded-full border border-line bg-paper px-3 py-1 text-xs text-ink-secondary"
             >
               {tag.type !== "MANUAL" ? (
-                <span className="rounded bg-zinc-200 px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-zinc-500 dark:bg-zinc-800">
+                <span className="rounded bg-paper-muted px-1.5 py-0.5 text-[10px] tracking-wide text-subtle uppercase">
                   {tag.type.toLowerCase()}
                 </span>
               ) : null}
@@ -107,7 +105,7 @@ export function PhotoTagEditor({
                 type="button"
                 onClick={() => handleRemoveTag(tag.id)}
                 disabled={removingTagId === tag.id}
-                className="text-zinc-500 hover:text-red-600"
+                className="text-subtle hover:text-red-600"
                 aria-label={`Remove tag ${tag.name}`}
               >
                 ×

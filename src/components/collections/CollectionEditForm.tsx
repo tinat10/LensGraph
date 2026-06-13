@@ -59,15 +59,15 @@ export function CollectionEditForm({
       <div className="space-y-3">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
+            <h1 className="font-display text-4xl tracking-tight text-ink">
               {title}
             </h1>
             {description ? (
-              <p className="mt-2 max-w-2xl text-sm leading-6 text-zinc-600 dark:text-zinc-400">
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-muted">
                 {description}
               </p>
             ) : (
-              <p className="mt-2 text-sm text-zinc-400">No description yet</p>
+              <p className="mt-2 text-sm text-subtle">No description yet</p>
             )}
           </div>
           <Button
@@ -85,7 +85,7 @@ export function CollectionEditForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-2">
-        <label htmlFor="edit-title" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+        <label htmlFor="edit-title" className="text-sm font-medium text-ink-secondary">
           Title
         </label>
         <Input
@@ -98,7 +98,7 @@ export function CollectionEditForm({
       <div className="space-y-2">
         <label
           htmlFor="edit-description"
-          className="text-sm font-medium text-zinc-700 dark:text-zinc-300"
+          className="text-sm font-medium text-ink-secondary"
         >
           Description
         </label>

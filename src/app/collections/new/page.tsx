@@ -13,18 +13,19 @@ export default async function NewCollectionPage() {
   return (
     <>
       <Header />
-      <main className="mx-auto max-w-2xl px-6 py-10">
+      <main className="page-shell max-w-2xl py-10 lg:py-12">
         <Link
           href="/dashboard"
-          className="mb-6 inline-block text-sm text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-300"
+          className="mb-6 inline-block text-sm text-muted transition hover:text-ink"
         >
           ← Back to dashboard
         </Link>
-        <div className="rounded-3xl border border-zinc-200 bg-white p-8 dark:border-zinc-800 dark:bg-zinc-950">
-          <h1 className="mb-2 text-3xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
+        <div className="surface-panel p-8 sm:p-10">
+          <p className="eyebrow mb-3">Collection</p>
+          <h1 className="font-display mb-2 text-4xl tracking-tight text-ink">
             New collection
           </h1>
-          <p className="mb-8 text-sm text-zinc-600 dark:text-zinc-400">
+          <p className="mb-8 text-sm leading-6 text-muted">
             Give your story a title, then upload photos for metadata extraction.
           </p>
           <CollectionForm />

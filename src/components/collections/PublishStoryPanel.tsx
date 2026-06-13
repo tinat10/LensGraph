@@ -121,12 +121,12 @@ export function PublishStoryPanel({
       {isOpen ? (
         <form
           onSubmit={handlePublish}
-          className="absolute right-0 z-20 mt-3 w-[min(100vw-3rem,24rem)] rounded-2xl border border-zinc-200 bg-white p-4 shadow-lg dark:border-zinc-800 dark:bg-zinc-950"
+          className="absolute right-0 z-20 mt-3 w-[min(100vw-3rem,24rem)] surface-panel p-4 shadow-[var(--shadow-lift)]"
         >
-          <p className="mb-3 text-sm font-medium text-zinc-900 dark:text-zinc-100">
+          <p className="mb-3 font-display text-lg text-ink">
             {isPublished ? "Update story page" : "Publish story page"}
           </p>
-          <p className="mb-4 text-xs text-zinc-500">
+          <p className="mb-4 text-xs leading-5 text-muted">
             Publishing sets this collection to public. Unpublish to make it
             private again.
           </p>

@@ -39,11 +39,11 @@ export default async function CollectionDetailPage({ params }: CollectionPagePro
   return (
     <>
       <Header />
-      <main className="mx-auto max-w-6xl px-6 py-10">
+      <main className="page-shell py-10 lg:py-12">
         <div className="mb-8 space-y-6">
           <Link
             href="/dashboard"
-            className="inline-block text-sm text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-300"
+            className="inline-block text-sm text-muted transition hover:text-ink"
           >
             ← Back to dashboard
           </Link>
@@ -66,11 +66,11 @@ export default async function CollectionDetailPage({ params }: CollectionPagePro
                 />
               </div>
               {collection.isPublic ? (
-                <p className="text-xs text-emerald-600">
+                <p className="text-xs font-medium tracking-wide text-ink uppercase">
                   Public — story is published
                 </p>
               ) : (
-                <p className="text-xs text-zinc-500">Private collection</p>
+                <p className="text-xs text-subtle">Private collection</p>
               )}
               <DeleteCollectionButton
                 collectionId={collection.id}

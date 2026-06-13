@@ -93,14 +93,14 @@ export function UploadDropzone({ collectionId }: UploadDropzoneProps) {
         onDrop={handleDrop}
         className={`flex cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed px-6 py-16 text-center transition ${
           isDragging
-            ? "border-zinc-900 bg-zinc-100 dark:border-zinc-100 dark:bg-zinc-900"
-            : "border-zinc-300 bg-zinc-50 hover:border-zinc-400 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-900/40 dark:hover:border-zinc-600"
+            ? "border-ink bg-paper-muted"
+            : "border-line-strong bg-surface hover:border-ink hover:bg-paper-muted"
         }`}
       >
-        <span className="mb-2 text-base font-medium text-zinc-900 dark:text-zinc-100">
+        <span className="mb-2 text-base font-medium text-ink">
           Drop photos here or browse
         </span>
-        <span className="text-sm text-zinc-500">
+        <span className="text-sm text-muted">
           JPG, PNG, or WebP up to 15MB each
         </span>
         <input
@@ -114,16 +114,16 @@ export function UploadDropzone({ collectionId }: UploadDropzoneProps) {
 
       {files.length > 0 ? (
         <div>
-          <p className="mb-3 text-sm text-zinc-600 dark:text-zinc-400">
+          <p className="mb-3 text-sm text-muted">
             {files.length} file{files.length === 1 ? "" : "s"} selected
           </p>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {files.map((file) => (
               <div
                 key={`${file.name}-${file.lastModified}`}
-                className="overflow-hidden rounded-xl border border-zinc-200 dark:border-zinc-800"
+                className="surface overflow-hidden"
               >
-                <div className="relative aspect-square bg-zinc-100 dark:bg-zinc-900">
+                <div className="relative aspect-square bg-paper-muted">
                   <Image
                     src={URL.createObjectURL(file)}
                     alt={file.name}
@@ -132,7 +132,7 @@ export function UploadDropzone({ collectionId }: UploadDropzoneProps) {
                     unoptimized
                   />
                 </div>
-                <p className="truncate px-2 py-2 text-xs text-zinc-600 dark:text-zinc-400">
+                <p className="truncate px-2 py-2 text-xs text-muted">
                   {file.name}
                 </p>
               </div>
