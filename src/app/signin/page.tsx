@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { GitHubIcon, GoogleIcon } from "@/components/auth/OAuthIcons";
 import { Header } from "@/components/layout/Header";
 import { Button } from "@/components/ui/Button";
 import { auth, signIn } from "@/lib/auth/auth";
@@ -30,8 +31,21 @@ export default async function SignInPage() {
               await signIn("github", { redirectTo: "/dashboard" });
             }}
           >
-            <Button type="submit" className="w-full">
+            <Button type="submit" className="w-full gap-2.5">
+              <GitHubIcon className="h-5 w-5" />
               Continue with GitHub
+            </Button>
+          </form>
+          <form
+            action={async () => {
+              "use server";
+              await signIn("google", { redirectTo: "/dashboard" });
+            }}
+            className="mt-3"
+          >
+            <Button type="submit" variant="secondary" className="w-full gap-2.5">
+              <GoogleIcon className="h-5 w-5" />
+              Continue with Google
             </Button>
           </form>
         </div>
