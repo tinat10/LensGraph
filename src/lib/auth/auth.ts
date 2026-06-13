@@ -1,11 +1,25 @@
 import NextAuth from "next-auth";
+import Credentials from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@/lib/db/prisma";
 import { authConfig } from "@/lib/auth/auth.config";
+import { authorizeCredentials } from "@/lib/auth/credentials";
+import { getOAuthProviders } from "@/lib/auth/providers";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
   adapter: PrismaAdapter(prisma),
+  providers: [
+    ...getOAuthProviders(),
+    Credentials({
+      name: "Email and password",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
+      },
+      authorize: authorizeCredentials,
+    }),
+  ],
   // JWT sessions are required for Edge middleware — database sessions
   // cannot be validated on the Edge runtime (causes Invalid Compact JWE).
   session: { strategy: "jwt" },
