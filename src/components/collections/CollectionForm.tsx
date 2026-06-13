@@ -46,7 +46,7 @@ export function CollectionForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       <div className="space-y-2">
-        <label htmlFor="title" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+        <label htmlFor="title" className="text-sm font-medium text-ink-secondary">
           Title
         </label>
         <Input
@@ -61,7 +61,7 @@ export function CollectionForm() {
       <div className="space-y-2">
         <label
           htmlFor="description"
-          className="text-sm font-medium text-zinc-700 dark:text-zinc-300"
+          className="text-sm font-medium text-ink-secondary"
         >
           Description
         </label>

@@ -18,13 +18,11 @@ export default async function DashboardPage() {
   return (
     <>
       <Header />
-      <main className="mx-auto max-w-6xl px-6 py-10">
-        <div className="mb-8 flex items-end justify-between gap-4">
+      <main className="page-shell py-10 lg:py-12">
+        <div className="mb-10 flex items-end justify-between gap-4 border-b border-line pb-8">
           <div>
-            <p className="mb-2 text-sm font-medium uppercase tracking-[0.2em] text-zinc-500">
-              Dashboard
-            </p>
-            <h1 className="text-3xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
+            <p className="eyebrow mb-3">Dashboard</p>
+            <h1 className="font-display text-4xl tracking-tight text-ink">
               Your collections
             </h1>
           </div>
@@ -44,7 +42,7 @@ export default async function DashboardPage() {
             }
           />
         ) : (
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
             {collections.map((collection) => (
               <CollectionCard
                 key={collection.id}
@@ -58,6 +56,7 @@ export default async function DashboardPage() {
                   collection.coverPhoto?.secureUrl ??
                   null
                 }
+                isPublished={collection.storyPage?.isPublished ?? false}
               />
             ))}
           </div>

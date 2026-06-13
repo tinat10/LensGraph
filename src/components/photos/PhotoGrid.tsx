@@ -1,3 +1,5 @@
+"use client";
+
 import { EmptyState } from "@/components/ui/EmptyState";
 import { PhotoCard, type PhotoCardData } from "@/components/photos/PhotoCard";
 
@@ -6,7 +8,10 @@ type PhotoGridProps = {
   selectedPhotoId?: string | null;
   onSelectPhoto?: (photoId: string) => void;
   onDeletePhoto?: (photoId: string) => void;
+  onSetCover?: (photoId: string) => void;
   deletingPhotoId?: string | null;
+  settingCoverPhotoId?: string | null;
+  readOnly?: boolean;
   emptyTitle?: string;
   emptyDescription?: string;
   emptyAction?: React.ReactNode;
@@ -17,7 +22,10 @@ export function PhotoGrid({
   selectedPhotoId,
   onSelectPhoto,
   onDeletePhoto,
+  onSetCover,
   deletingPhotoId,
+  settingCoverPhotoId,
+  readOnly = false,
   emptyTitle = "No photos yet",
   emptyDescription = "Upload images to start building this collection.",
   emptyAction,
@@ -38,12 +46,17 @@ export function PhotoGrid({
         <PhotoCard
           key={photo.id}
           photo={photo}
-          selected={selectedPhotoId === photo.id}
-          onSelect={onSelectPhoto}
-          onDelete={onDeletePhoto}
+          selected={!readOnly && selectedPhotoId === photo.id}
+          onSelect={readOnly ? undefined : onSelectPhoto}
+          onDelete={readOnly ? undefined : onDeletePhoto}
+          onSetCover={readOnly ? undefined : onSetCover}
           isDeleting={deletingPhotoId === photo.id}
+          isSettingCover={settingCoverPhotoId === photo.id}
+          readOnly={readOnly}
         />
       ))}
     </div>
   );
 }
+
+export type { PhotoCardData };

@@ -1,6 +1,10 @@
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import { PhotoGrid } from "@/components/photos/PhotoGrid";
+import { StoryWeatherBanner } from "@/components/story/StoryWeatherBanner";
+import { serializePhoto } from "@/lib/photos/serialize";
 import { getPublishedStoryBySlug } from "@/services/collection.service";
+import { getStoryWeatherContext } from "@/services/story-weather.service";
 
 type StoryPageProps = {
   params: Promise<{ slug: string }>;
@@ -14,37 +18,54 @@ export default async function PublicStoryPage({ params }: StoryPageProps) {
     notFound();
   }
 
-  const photos = story.collection.photos.map((photo) => ({
-    id: photo.id,
-    originalFilename: photo.originalFilename,
-    secureUrl: photo.secureUrl,
-    thumbnailUrl: photo.thumbnailUrl,
-    format: photo.format,
-    width: photo.width,
-    height: photo.height,
-    fileSize: photo.fileSize,
-    uploadedAt: photo.uploadedAt.toISOString(),
-    metadata: photo.metadata,
-    colorPalette: photo.colorPalette,
-  }));
+  const photos = story.collection.photos.map((photo) =>
+    serializePhoto(photo, story.collection.coverPhotoId),
+  );
+
+  const weather = await getStoryWeatherContext(
+    story.collectionId,
+    story.collection.coverPhotoId,
+  );
 
   return (
-    <main className="min-h-screen bg-zinc-950 text-zinc-50">
-      <section className="mx-auto max-w-6xl px-6 py-20">
-        <p className="mb-3 text-sm uppercase tracking-[0.25em] text-zinc-400">
-          LensGraph Story
-        </p>
-        <h1 className="max-w-3xl text-4xl font-semibold tracking-tight sm:text-5xl">
+    <main className="min-h-screen bg-paper text-ink">
+      <header className="border-b border-line bg-surface/90 backdrop-blur-md">
+        <div className="page-shell flex h-[4.25rem] items-center justify-between">
+          <Link href="/" className="font-display text-xl tracking-tight">
+            LensGraph
+          </Link>
+          <Link
+            href="/stories"
+            className="rounded-full px-4 py-2 text-sm text-muted transition hover:bg-accent-soft hover:text-ink"
+          >
+            Explore stories
+          </Link>
+        </div>
+      </header>
+
+      <section className="page-shell py-16 lg:py-20">
+        <p className="eyebrow mb-4">Story</p>
+        <h1 className="font-display max-w-4xl text-5xl leading-[1.05] tracking-tight sm:text-6xl">
           {story.title}
         </h1>
         {story.intro ? (
-          <p className="mt-4 max-w-2xl text-lg text-zinc-300">{story.intro}</p>
+          <p className="mt-6 max-w-2xl text-lg leading-8 text-muted">
+            {story.intro}
+          </p>
         ) : null}
-        {/* TODO(OpenWeather): Display ambient weather for story context */}
+        <p className="mt-6 text-sm text-subtle">
+          {photos.length} photo{photos.length === 1 ? "" : "s"}
+        </p>
+        {weather ? <StoryWeatherBanner weather={weather} /> : null}
       </section>
 
-      <section className="mx-auto max-w-6xl px-6 pb-20">
-        <PhotoGrid photos={photos} />
+      <section className="page-shell pb-20">
+        <PhotoGrid
+          photos={photos}
+          readOnly
+          emptyTitle="No photos in this story"
+          emptyDescription="The collection owner has not uploaded photos yet."
+        />
       </section>
     </main>
   );

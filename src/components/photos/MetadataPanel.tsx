@@ -1,7 +1,31 @@
+"use client";
+
 import type { PhotoCardData } from "@/components/photos/PhotoCard";
+import { PhotoTagEditor } from "@/components/photos/PhotoTagEditor";
+import { AiInsightsPanel } from "@/components/photos/AiInsightsPanel";
+import { LocationPanel } from "@/components/photos/LocationPanel";
+import type { PhotoTagSummary } from "@/lib/photos/serialize";
 
 type MetadataPanelProps = {
   photo: PhotoCardData | null;
+  onTagsChange?: (photoId: string, tags: PhotoTagSummary[]) => void;
+  onEnriched?: (
+    photoId: string,
+    data: {
+      aiCaption: string;
+      aiMood: string;
+      tags: PhotoTagSummary[];
+    },
+  ) => void;
+  onGeocoded?: (
+    photoId: string,
+    data: {
+      locationName: string;
+      city: string | null;
+      country: string | null;
+      tags: PhotoTagSummary[];
+    },
+  ) => void;
 };
 
 function formatValue(value: string | number | null | undefined) {
@@ -17,15 +41,13 @@ function formatShutterSpeed(value: number | null | undefined) {
   return `1/${Math.round(1 / value)}s`;
 }
 
-export function MetadataPanel({ photo }: MetadataPanelProps) {
+export function MetadataPanel({ photo, onTagsChange, onEnriched, onGeocoded }: MetadataPanelProps) {
   if (!photo) {
     return (
-      <aside className="rounded-2xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-950">
-        <h2 className="text-sm font-medium uppercase tracking-[0.2em] text-zinc-500">
-          Metadata
-        </h2>
-        <p className="mt-4 text-sm text-zinc-600 dark:text-zinc-400">
-          Select a photo to inspect EXIF details and color analysis.
+      <aside className="surface-panel p-6">
+        <h2 className="eyebrow">Metadata</h2>
+        <p className="mt-4 text-sm leading-6 text-muted">
+          Select a photo to inspect EXIF details, tags, and color analysis.
         </p>
       </aside>
     );
@@ -39,6 +61,13 @@ export function MetadataPanel({ photo }: MetadataPanelProps) {
     focalLength?: number | null;
     latitude?: number | null;
     longitude?: number | null;
+    aiCaption?: string | null;
+    aiMood?: string | null;
+    aiEnrichedAt?: string | Date | null;
+    locationName?: string | null;
+    city?: string | null;
+    country?: string | null;
+    locationGeocodedAt?: string | Date | null;
   } | null;
 
   const palette = photo.colorPalette as PhotoCardData["colorPalette"] & {
@@ -55,10 +84,7 @@ export function MetadataPanel({ photo }: MetadataPanelProps) {
       "Dimensions",
       photo.width && photo.height ? `${photo.width} × ${photo.height}` : "—",
     ],
-    [
-      "Uploaded",
-      new Date(photo.uploadedAt).toLocaleString(),
-    ],
+    ["Uploaded", new Date(photo.uploadedAt).toLocaleString()],
     [
       "Taken",
       metadata?.takenAt
@@ -103,42 +129,68 @@ export function MetadataPanel({ photo }: MetadataPanelProps) {
   ];
 
   return (
-    <aside className="rounded-2xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-950">
-      <h2 className="text-sm font-medium uppercase tracking-[0.2em] text-zinc-500">
-        Metadata
-      </h2>
+    <aside className="surface-panel p-6">
+      <h2 className="eyebrow">Metadata</h2>
       <dl className="mt-4 space-y-3">
         {rows.map(([label, value]) => (
           <div key={label} className="grid grid-cols-[120px_1fr] gap-3 text-sm">
-            <dt className="text-zinc-500">{label}</dt>
-            <dd className="break-all text-zinc-900 dark:text-zinc-100">{value}</dd>
+            <dt className="text-muted">{label}</dt>
+            <dd className="break-all text-ink">{value}</dd>
           </div>
         ))}
       </dl>
 
       {palette?.paletteJson ? (
         <div className="mt-6">
-          <p className="mb-3 text-xs font-medium uppercase tracking-[0.15em] text-zinc-500">
-            Palette
-          </p>
+          <p className="eyebrow mb-3">Palette</p>
           <div className="flex flex-wrap gap-2">
             {Object.entries(palette.paletteJson)
               .filter(([, hex]) => hex)
               .map(([name, hex]) => (
                 <div key={name} className="flex items-center gap-2 text-xs">
                   <span
-                    className="h-4 w-4 rounded-full border border-zinc-200 dark:border-zinc-700"
+                    className="h-4 w-4 rounded-full border border-line"
                     style={{ backgroundColor: hex ?? undefined }}
                   />
-                  <span className="text-zinc-500">{name}</span>
+                  <span className="text-subtle">{name}</span>
                 </div>
               ))}
           </div>
         </div>
       ) : null}
 
-      {/* TODO(OpenAI Vision): Display AI caption and subject tags here */}
-      {/* TODO(Mapbox): Display reverse-geocoded location name here */}
+      <AiInsightsPanel
+        photoId={photo.id}
+        aiCaption={metadata?.aiCaption}
+        aiMood={metadata?.aiMood}
+        aiEnrichedAt={
+          metadata?.aiEnrichedAt
+            ? new Date(metadata.aiEnrichedAt).toISOString()
+            : null
+        }
+        onEnriched={(data) => onEnriched?.(photo.id, data)}
+      />
+
+      <LocationPanel
+        photoId={photo.id}
+        latitude={metadata?.latitude}
+        longitude={metadata?.longitude}
+        locationName={metadata?.locationName}
+        city={metadata?.city}
+        country={metadata?.country}
+        locationGeocodedAt={
+          metadata?.locationGeocodedAt
+            ? new Date(metadata.locationGeocodedAt).toISOString()
+            : null
+        }
+        onGeocoded={(data) => onGeocoded?.(photo.id, data)}
+      />
+
+      <PhotoTagEditor
+        photoId={photo.id}
+        tags={photo.tags ?? []}
+        onTagsChange={(tags) => onTagsChange?.(photo.id, tags)}
+      />
     </aside>
   );
 }

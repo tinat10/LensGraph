@@ -1,53 +1,50 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
-import { GitHubIcon, GoogleIcon } from "@/components/auth/OAuthIcons";
+import {
+  AuthDivider,
+  OAuthButtons,
+  SignInForm,
+} from "@/components/auth/AuthForms";
 import { Header } from "@/components/layout/Header";
-import { Button } from "@/components/ui/Button";
-import { auth, signIn } from "@/lib/auth/auth";
+import { auth } from "@/lib/auth/auth";
+import { getAuthErrorMessage } from "@/lib/auth/messages";
 
-export default async function SignInPage() {
+type SignInPageProps = {
+  searchParams: Promise<{ error?: string }>;
+};
+
+export default async function SignInPage({ searchParams }: SignInPageProps) {
   const session = await auth();
   if (session?.user) {
     redirect("/dashboard");
   }
 
+  const { error } = await searchParams;
+
   return (
     <>
       <Header />
-      <main className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-md flex-col justify-center px-6 py-16">
-        <div className="rounded-3xl border border-zinc-200 bg-white p-8 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
-          <p className="mb-2 text-sm font-medium uppercase tracking-[0.2em] text-zinc-500">
-            Welcome
-          </p>
-          <h1 className="mb-3 text-3xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
+      <main className="page-shell flex min-h-[calc(100vh-4.25rem)] max-w-lg flex-col justify-center py-16">
+        <div className="surface-panel p-8 sm:p-10">
+          <p className="eyebrow mb-4">Welcome</p>
+          <h1 className="font-display text-4xl tracking-tight text-ink">
             Sign in to LensGraph
           </h1>
-          <p className="mb-8 text-sm leading-6 text-zinc-600 dark:text-zinc-400">
-            Build searchable photo collections with EXIF metadata, color palettes,
-            and story pages.
+          <p className="mb-8 mt-4 text-sm leading-7 text-muted">
+            Build searchable photo collections with EXIF metadata, AI enrichment,
+            and publishable story pages.
           </p>
-          <form
-            action={async () => {
-              "use server";
-              await signIn("github", { redirectTo: "/dashboard" });
-            }}
-          >
-            <Button type="submit" className="w-full gap-2.5">
-              <GitHubIcon className="h-5 w-5" />
-              Continue with GitHub
-            </Button>
-          </form>
-          <form
-            action={async () => {
-              "use server";
-              await signIn("google", { redirectTo: "/dashboard" });
-            }}
-            className="mt-3"
-          >
-            <Button type="submit" variant="secondary" className="w-full gap-2.5">
-              <GoogleIcon className="h-5 w-5" />
-              Continue with Google
-            </Button>
-          </form>
+
+          <SignInForm errorMessage={getAuthErrorMessage(error)} />
+          <AuthDivider />
+          <OAuthButtons />
+
+          <p className="mt-8 text-center text-sm text-muted">
+            No account yet?{" "}
+            <Link href="/signup" className="font-medium text-accent hover:text-accent-hover">
+              Create one
+            </Link>
+          </p>
         </div>
       </main>
     </>
