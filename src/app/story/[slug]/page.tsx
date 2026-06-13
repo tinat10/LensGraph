@@ -34,7 +34,12 @@ export default async function PublicStoryPage({ params }: StoryPageProps) {
           <Link href="/" className="font-display text-xl tracking-tight">
             LensGraph
           </Link>
-          <p className="eyebrow">Published story</p>
+          <Link
+            href="/stories"
+            className="rounded-full px-4 py-2 text-sm text-muted transition hover:bg-accent-soft hover:text-ink"
+          >
+            Explore stories
+          </Link>
         </div>
       </header>
 

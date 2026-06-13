@@ -79,8 +79,8 @@ export default function HomePage() {
               <Link href="/signin">
                 <Button>Get started</Button>
               </Link>
-              <Link href="/dashboard">
-                <Button variant="secondary">View dashboard</Button>
+              <Link href="/stories">
+                <Button variant="secondary">Explore stories</Button>
               </Link>
             </div>
           </div>

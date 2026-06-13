@@ -18,6 +18,12 @@ export async function Header() {
         </Link>
 
         <nav className="flex items-center gap-2">
+          <Link
+            href="/stories"
+            className="rounded-full px-4 py-2 text-sm text-muted transition hover:bg-accent-soft hover:text-ink"
+          >
+            Explore
+          </Link>
           {session?.user ? (
             <>
               <Link
