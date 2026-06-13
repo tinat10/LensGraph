@@ -1,0 +1,180 @@
+// LensGraph — Phase 1 schema
+// TODO(pgvector): Add embedding columns for semantic photo search
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Auth (NextAuth / Auth.js) ───────────────────────────────────────────────
+
+model User {
+  id            String       @id @default(cuid())
+  name          String?
+  email         String?      @unique
+  emailVerified DateTime?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+  collections   Collection[]
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ─── Core domain ─────────────────────────────────────────────────────────────
+
+model Collection {
+  id           String     @id @default(cuid())
+  userId       String
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title        String
+  description  String?
+  coverPhotoId String?    @unique
+  coverPhoto   Photo?     @relation("CollectionCover", fields: [coverPhotoId], references: [id], onDelete: SetNull)
+  isPublic     Boolean    @default(false)
+  photos       Photo[]
+  storyPage    StoryPage?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@index([userId])
+}
+
+model Photo {
+  id                 String             @id @default(cuid())
+  collectionId       String
+  collection         Collection         @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  cloudinaryPublicId String
+  secureUrl          String
+  thumbnailUrl       String?
+  originalFilename   String
+  format             String?
+  width              Int?
+  height             Int?
+  fileSize           Int?
+  uploadedAt         DateTime           @default(now())
+  metadata           PhotoMetadata?
+  colorPalette       PhotoColorPalette?
+  tags               PhotoTag[]
+  coverOf            Collection?        @relation("CollectionCover")
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  @@index([collectionId])
+}
+
+model PhotoMetadata {
+  id           String    @id @default(cuid())
+  photoId      String    @unique
+  photo        Photo     @relation(fields: [photoId], references: [id], onDelete: Cascade)
+  takenAt      DateTime?
+  cameraMake   String?
+  cameraModel  String?
+  lensModel    String?
+  iso          Int?
+  aperture     Float?
+  shutterSpeed Float?
+  focalLength  Float?
+  latitude     Float?
+  longitude    Float?
+  rawExifJson  Json?
+  // TODO(Mapbox): Reverse-geocode GPS into location tags
+  // TODO(OpenAI Vision): AI-generated captions and subject labels
+
+  @@index([takenAt])
+  @@index([cameraMake, cameraModel])
+}
+
+model PhotoColorPalette {
+  id              String  @id @default(cuid())
+  photoId         String  @unique
+  photo           Photo   @relation(fields: [photoId], references: [id], onDelete: Cascade)
+  dominantHex     String?
+  paletteJson     Json?
+  brightnessScore Float?
+  warmthScore     Float?
+  contrastScore   Float?
+}
+
+model Tag {
+  id        String     @id @default(cuid())
+  name      String     @unique
+  type      TagType    @default(MANUAL)
+  photos    PhotoTag[]
+  createdAt DateTime   @default(now())
+  // TODO(pgvector): Store embedding vector for semantic search
+}
+
+enum TagType {
+  MANUAL
+  AI
+  LOCATION
+  STYLE
+  SUBJECT
+}
+
+model PhotoTag {
+  photoId String
+  tagId   String
+  photo   Photo  @relation(fields: [photoId], references: [id], onDelete: Cascade)
+  tag     Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([photoId, tagId])
+  @@index([tagId])
+}
+
+model StoryPage {
+  id           String     @id @default(cuid())
+  collectionId String     @unique
+  collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  slug         String     @unique
+  title        String
+  intro        String?
+  isPublished  Boolean    @default(false)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  // TODO(OpenWeather): Attach ambient weather context to published story pages
+
+  @@index([slug])
+}
