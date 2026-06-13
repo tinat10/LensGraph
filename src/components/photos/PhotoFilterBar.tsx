@@ -77,15 +77,13 @@ export function PhotoFilterBar({
   return (
     <form
       onSubmit={handleSubmit}
-      className="rounded-2xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950"
+      className="surface-panel p-5"
     >
       <div className="mb-4 flex items-center justify-between gap-3">
         <div>
-          <h2 className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
-            Search & filter
-          </h2>
+          <h2 className="font-display text-xl text-ink">Search & filter</h2>
           {resultCount !== undefined ? (
-            <p className="text-xs text-zinc-500">
+            <p className="text-xs text-subtle">
               {resultCount} photo{resultCount === 1 ? "" : "s"} matching
             </p>
           ) : null}
@@ -191,7 +189,7 @@ export function PhotoFilterBar({
           </datalist>
           {filters.colorHex ? (
             <span
-              className="h-9 w-9 shrink-0 rounded-lg border border-zinc-200 dark:border-zinc-700"
+              className="h-9 w-9 shrink-0 rounded-lg border border-line"
               style={{ backgroundColor: filters.colorHex }}
             />
           ) : null}
@@ -208,8 +206,8 @@ export function PhotoFilterBar({
               onClick={() => updateField("colorHex", color)}
               className={`h-6 w-6 rounded-full border ${
                 filters.colorHex === color
-                  ? "border-zinc-900 ring-2 ring-zinc-900/20 dark:border-zinc-100"
-                  : "border-zinc-200 dark:border-zinc-700"
+                  ? "border-ink ring-2 ring-ink/10"
+                  : "border-line"
               }`}
               style={{ backgroundColor: color }}
             />

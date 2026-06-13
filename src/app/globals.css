@@ -1,26 +1,107 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: light;
+
+  --paper: #f7f3ed;
+  --paper-muted: #ece6dc;
+  --surface: #fffdf9;
+  --ink: #2a2520;
+  --ink-secondary: #4a433c;
+  --muted: #736a60;
+  --subtle: #9a9086;
+  --line: #e0d8cc;
+  --line-strong: #cfc4b4;
+  --accent: #b85c38;
+  --accent-hover: #9e4a2c;
+  --accent-soft: #f3e4dc;
+  --accent-muted: #c4785a;
+  --shadow-soft: 0 1px 2px rgb(42 37 32 / 0.05), 0 8px 24px rgb(42 37 32 / 0.07);
+  --shadow-lift: 0 2px 4px rgb(42 37 32 / 0.06), 0 16px 40px rgb(42 37 32 / 0.1);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-paper: var(--paper);
+  --color-paper-muted: var(--paper-muted);
+  --color-surface: var(--surface);
+  --color-ink: var(--ink);
+  --color-ink-secondary: var(--ink-secondary);
+  --color-muted: var(--muted);
+  --color-subtle: var(--subtle);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-muted: var(--accent-muted);
+  --font-sans: var(--font-sans);
+  --font-serif: var(--font-serif);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  background-color: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  background-image:
+    linear-gradient(to right, rgb(184 92 56 / 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(184 92 56 / 0.04) 1px, transparent 1px);
+  background-size: 48px 48px;
+  background-position: center top;
+}
+
+::selection {
+  background: rgb(184 92 56 / 0.18);
+  color: var(--ink);
+}
+
+@layer components {
+  .font-display {
+    font-family: var(--font-serif), Georgia, "Times New Roman", serif;
+  }
+
+  .eyebrow {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--accent-muted);
+  }
+
+  .page-shell {
+    margin-inline: auto;
+    max-width: 72rem;
+    padding-inline: 1.5rem;
+  }
+
+  .surface {
+    border: 1px solid var(--line);
+    border-radius: 1rem;
+    background: var(--surface);
+  }
+
+  .surface-panel {
+    border: 1px solid var(--line);
+    border-radius: 1rem;
+    background: var(--surface);
+    box-shadow: var(--shadow-soft);
+  }
+
+  .surface-interactive {
+    border: 1px solid var(--line);
+    border-radius: 1rem;
+    background: var(--surface);
+    transition:
+      border-color 0.2s ease,
+      box-shadow 0.2s ease,
+      transform 0.2s ease;
+  }
+
+  .surface-interactive:hover {
+    border-color: var(--line-strong);
+    box-shadow: var(--shadow-soft);
+  }
 }

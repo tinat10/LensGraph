@@ -119,6 +119,29 @@ export async function updateStoryDraft(
   });
 }
 
+export async function getPublishedStories() {
+  return prisma.storyPage.findMany({
+    where: {
+      isPublished: true,
+      collection: { isPublic: true },
+    },
+    orderBy: { updatedAt: "desc" },
+    include: {
+      collection: {
+        include: {
+          coverPhoto: {
+            select: { thumbnailUrl: true, secureUrl: true },
+          },
+          user: {
+            select: { name: true, image: true },
+          },
+          _count: { select: { photos: true } },
+        },
+      },
+    },
+  });
+}
+
 export async function unpublishStory(collectionId: string, userId: string) {
   await assertCollectionOwnership(collectionId, userId);
 

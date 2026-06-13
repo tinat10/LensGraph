@@ -44,11 +44,9 @@ function formatShutterSpeed(value: number | null | undefined) {
 export function MetadataPanel({ photo, onTagsChange, onEnriched, onGeocoded }: MetadataPanelProps) {
   if (!photo) {
     return (
-      <aside className="rounded-2xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-950">
-        <h2 className="text-sm font-medium uppercase tracking-[0.2em] text-zinc-500">
-          Metadata
-        </h2>
-        <p className="mt-4 text-sm text-zinc-600 dark:text-zinc-400">
+      <aside className="surface-panel p-6">
+        <h2 className="eyebrow">Metadata</h2>
+        <p className="mt-4 text-sm leading-6 text-muted">
           Select a photo to inspect EXIF details, tags, and color analysis.
         </p>
       </aside>
@@ -131,34 +129,30 @@ export function MetadataPanel({ photo, onTagsChange, onEnriched, onGeocoded }: M
   ];
 
   return (
-    <aside className="rounded-2xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-950">
-      <h2 className="text-sm font-medium uppercase tracking-[0.2em] text-zinc-500">
-        Metadata
-      </h2>
+    <aside className="surface-panel p-6">
+      <h2 className="eyebrow">Metadata</h2>
       <dl className="mt-4 space-y-3">
         {rows.map(([label, value]) => (
           <div key={label} className="grid grid-cols-[120px_1fr] gap-3 text-sm">
-            <dt className="text-zinc-500">{label}</dt>
-            <dd className="break-all text-zinc-900 dark:text-zinc-100">{value}</dd>
+            <dt className="text-muted">{label}</dt>
+            <dd className="break-all text-ink">{value}</dd>
           </div>
         ))}
       </dl>
 
       {palette?.paletteJson ? (
         <div className="mt-6">
-          <p className="mb-3 text-xs font-medium uppercase tracking-[0.15em] text-zinc-500">
-            Palette
-          </p>
+          <p className="eyebrow mb-3">Palette</p>
           <div className="flex flex-wrap gap-2">
             {Object.entries(palette.paletteJson)
               .filter(([, hex]) => hex)
               .map(([name, hex]) => (
                 <div key={name} className="flex items-center gap-2 text-xs">
                   <span
-                    className="h-4 w-4 rounded-full border border-zinc-200 dark:border-zinc-700"
+                    className="h-4 w-4 rounded-full border border-line"
                     style={{ backgroundColor: hex ?? undefined }}
                   />
-                  <span className="text-zinc-500">{name}</span>
+                  <span className="text-subtle">{name}</span>
                 </div>
               ))}
           </div>

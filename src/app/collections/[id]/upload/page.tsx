@@ -25,20 +25,21 @@ export default async function CollectionUploadPage({ params }: UploadPageProps) 
   return (
     <>
       <Header />
-      <main className="mx-auto max-w-3xl px-6 py-10">
+      <main className="page-shell max-w-3xl py-10 lg:py-12">
         <Link
           href={`/collections/${collection.id}`}
-          className="mb-6 inline-block text-sm text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-300"
+          className="mb-6 inline-block text-sm text-muted transition hover:text-ink"
         >
           ← Back to {collection.title}
         </Link>
-        <div className="rounded-3xl border border-zinc-200 bg-white p-8 dark:border-zinc-800 dark:bg-zinc-950">
-          <h1 className="mb-2 text-3xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
+        <div className="surface-panel p-8 sm:p-10">
+          <p className="eyebrow mb-3">Upload</p>
+          <h1 className="font-display mb-2 text-4xl tracking-tight text-ink">
             Upload photos
           </h1>
-          <p className="mb-8 text-sm leading-6 text-zinc-600 dark:text-zinc-400">
-            Images are stored in Cloudinary. LensGraph extracts EXIF metadata and
-            generates a dominant color palette for each photo.
+          <p className="mb-8 text-sm leading-7 text-muted">
+            Images are stored in Cloudinary. LensGraph extracts EXIF metadata,
+            runs AI enrichment, and generates a color palette for each photo.
           </p>
           <UploadDropzone collectionId={collection.id} />
         </div>

@@ -67,10 +67,8 @@ export function PhotoCard({
 
   return (
     <article
-      className={`overflow-hidden rounded-2xl border bg-white transition dark:bg-zinc-950 ${
-        selected
-          ? "border-zinc-900 ring-2 ring-zinc-900/10 dark:border-zinc-100"
-          : "border-zinc-200 dark:border-zinc-800"
+      className={`surface-interactive overflow-hidden ${
+        selected ? "border-ink ring-2 ring-ink/8" : ""
       }`}
     >
       <button
@@ -79,7 +77,7 @@ export function PhotoCard({
         disabled={readOnly}
         className={`block w-full text-left ${readOnly ? "cursor-default" : ""}`}
       >
-        <div className="relative aspect-[4/3] bg-zinc-100 dark:bg-zinc-900">
+        <div className="relative aspect-[4/3] bg-paper-muted">
           <Image
             src={photo.thumbnailUrl ?? photo.secureUrl}
             alt={photo.originalFilename}
@@ -88,13 +86,13 @@ export function PhotoCard({
             sizes="(max-width: 768px) 100vw, 33vw"
           />
           {photo.isCover ? (
-            <span className="absolute left-3 top-3 rounded-full bg-zinc-900/80 px-2.5 py-1 text-xs font-medium text-white">
+            <span className="absolute left-3 top-3 rounded-full bg-ink/85 px-2.5 py-1 text-xs font-medium tracking-wide text-surface uppercase">
               Cover
             </span>
           ) : null}
           {accent ? (
             <span
-              className="absolute bottom-3 right-3 h-5 w-5 rounded-full border border-white/70 shadow"
+              className="absolute right-3 bottom-3 h-5 w-5 rounded-full border border-surface shadow-sm"
               style={{ backgroundColor: accent }}
               title="Dominant color"
             />
@@ -104,7 +102,7 @@ export function PhotoCard({
 
       <div className="space-y-2 px-4 py-3">
         <div className="flex items-start justify-between gap-2">
-          <p className="truncate text-sm font-medium text-zinc-900 dark:text-zinc-100">
+          <p className="truncate text-sm font-medium text-ink">
             {photo.originalFilename}
           </p>
           <div className="flex shrink-0 gap-2">
@@ -113,7 +111,7 @@ export function PhotoCard({
                 type="button"
                 onClick={() => onSetCover(photo.id)}
                 disabled={isSettingCover}
-                className="text-xs text-zinc-600 hover:text-zinc-900 disabled:opacity-50 dark:text-zinc-400 dark:hover:text-zinc-100"
+                className="text-xs text-muted hover:text-ink disabled:opacity-50"
               >
                 {isSettingCover ? "Saving..." : "Set cover"}
               </button>
@@ -136,7 +134,7 @@ export function PhotoCard({
             {photo.tags.map((tag) => (
               <span
                 key={tag.id}
-                className="rounded-full bg-zinc-100 px-2 py-0.5 text-[11px] text-zinc-600 dark:bg-zinc-900 dark:text-zinc-400"
+                className="rounded-full border border-line bg-paper px-2 py-0.5 text-[11px] text-muted"
               >
                 {tag.name}
               </span>
@@ -144,13 +142,13 @@ export function PhotoCard({
           </div>
         ) : null}
 
-        <p className="text-xs text-zinc-500">
+        <p className="text-xs text-muted">
           {photo.metadata?.takenAt
             ? new Date(photo.metadata.takenAt).toLocaleString()
             : "Date unknown"}
           {camera ? ` · ${camera}` : ""}
         </p>
-        <p className="text-xs text-zinc-400">
+        <p className="text-xs text-subtle">
           {photo.width && photo.height
             ? `${photo.width} × ${photo.height}`
             : "Dimensions unknown"}

@@ -72,11 +72,9 @@ export function LocationPanel({
   }
 
   return (
-    <div className="mt-6 border-t border-zinc-200 pt-6 dark:border-zinc-800">
+    <div className="mt-6 border-t border-line pt-6">
       <div className="mb-3 flex items-center justify-between gap-3">
-        <p className="text-xs font-medium uppercase tracking-[0.15em] text-zinc-500">
-          Location
-        </p>
+        <p className="eyebrow">Location</p>
         {hasGps ? (
           <Button
             type="button"
@@ -96,23 +94,23 @@ export function LocationPanel({
       {hasLocation ? (
         <div className="space-y-2 text-sm">
           {locationName ? (
-            <p className="leading-6 text-zinc-900 dark:text-zinc-100">
+            <p className="leading-6 text-ink">
               {locationName}
             </p>
           ) : null}
           {city || country ? (
-            <p className="text-zinc-600 dark:text-zinc-400">
+            <p className="text-muted">
               {[city, country].filter(Boolean).join(", ")}
             </p>
           ) : null}
           {locationGeocodedAt ? (
-            <p className="text-xs text-zinc-400">
+            <p className="text-xs text-subtle">
               Geocoded {new Date(locationGeocodedAt).toLocaleString()}
             </p>
           ) : null}
         </div>
       ) : hasGps ? (
-        <p className="text-sm text-zinc-600 dark:text-zinc-400">
+        <p className="text-sm text-muted">
           {isGeocoding
             ? "Mapbox is resolving GPS coordinates into a place name..."
             : "GPS coordinates are available. Resolve them into a searchable location."}
