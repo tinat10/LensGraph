@@ -280,7 +280,7 @@ export function CollectionGallery({
 
       {error ? <p className="text-sm text-red-600">{error}</p> : null}
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
+      <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
         <PhotoGrid
           photos={photos}
           selectedPhotoId={selectedPhotoId}
@@ -295,12 +295,14 @@ export function CollectionGallery({
             </Link>
           }
         />
-        <MetadataPanel
-          photo={selectedPhoto}
-          onTagsChange={handleTagsChange}
-          onEnriched={handlePhotoEnriched}
-          onGeocoded={handlePhotoGeocoded}
-        />
+        <div className="min-w-0 xl:sticky xl:top-24 xl:max-h-[calc(100vh-7rem)] xl:overflow-y-auto">
+          <MetadataPanel
+            photo={selectedPhoto}
+            onTagsChange={handleTagsChange}
+            onEnriched={handlePhotoEnriched}
+            onGeocoded={handlePhotoGeocoded}
+          />
+        </div>
       </div>
     </div>
   );

@@ -17,6 +17,18 @@ type PhotoGridProps = {
   emptyAction?: React.ReactNode;
 };
 
+function gridClassName(photoCount: number) {
+  if (photoCount === 1) {
+    return "grid max-w-xs grid-cols-1 gap-4 sm:max-w-sm";
+  }
+
+  if (photoCount === 2) {
+    return "grid max-w-2xl grid-cols-1 gap-4 sm:grid-cols-2";
+  }
+
+  return "grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3";
+}
+
 export function PhotoGrid({
   photos,
   selectedPhotoId,
@@ -41,7 +53,7 @@ export function PhotoGrid({
   }
 
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <div className={gridClassName(photos.length)}>
       {photos.map((photo) => (
         <PhotoCard
           key={photo.id}

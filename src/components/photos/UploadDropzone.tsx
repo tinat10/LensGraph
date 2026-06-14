@@ -13,7 +13,10 @@ import {
   MAX_UPLOAD_FILE_SIZE,
   isAcceptedImageFile,
 } from "@/lib/photos/image-file";
+import { mapWithConcurrency, withRetry } from "@/lib/photos/upload-queue";
 import { Button } from "@/components/ui/Button";
+
+const UPLOAD_CONCURRENCY = 2;
 
 type UploadDropzoneProps = {
   collectionId: string;
@@ -36,6 +39,10 @@ type CloudinaryDirectUploadResult = {
   bytes: number;
   format?: string;
 };
+
+type FileUploadOutcome =
+  | { ok: true; file: File }
+  | { ok: false; file: File; error: string };
 
 export function UploadDropzone({ collectionId }: UploadDropzoneProps) {
   const router = useRouter();
@@ -134,6 +141,70 @@ export function UploadDropzone({ collectionId }: UploadDropzoneProps) {
     );
   }
 
+  async function registerUploadedPhoto(
+    result: CloudinaryDirectUploadResult,
+    file: File,
+  ): Promise<void> {
+    const response = await apiFetch("/api/photos/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        collectionId,
+        photos: [
+          {
+            public_id: result.public_id,
+            secure_url: result.secure_url,
+            width: result.width,
+            height: result.height,
+            bytes: result.bytes,
+            format: result.format,
+            originalFilename: file.name,
+          },
+        ],
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        await parseApiErrorResponse(response, `Failed to save ${file.name}`),
+      );
+    }
+  }
+
+  async function uploadAndRegisterFile(
+    file: File,
+    signature: CloudinaryUploadSignature,
+    index: number,
+    total: number,
+  ): Promise<FileUploadOutcome> {
+    setUploadProgress(`Uploading ${index + 1} of ${total}…`);
+
+    try {
+      const cloudinaryResult = await withRetry(
+        () => uploadFileToCloudinary(file, signature),
+        { attempts: 3 },
+      );
+
+      setUploadProgress(`Saving ${index + 1} of ${total}…`);
+
+      await withRetry(
+        () => registerUploadedPhoto(cloudinaryResult, file),
+        { attempts: 3 },
+      );
+
+      return { ok: true, file };
+    } catch (uploadError) {
+      return {
+        ok: false,
+        file,
+        error:
+          uploadError instanceof Error
+            ? uploadError.message
+            : `Failed to upload ${file.name}`,
+      };
+    }
+  }
+
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (files.length === 0) {
@@ -158,37 +229,29 @@ export function UploadDropzone({ collectionId }: UploadDropzoneProps) {
 
     try {
       const signature = await getUploadSignature();
-      const uploaded: CloudinaryDirectUploadResult[] = [];
+      const outcomes = await mapWithConcurrency(
+        files,
+        UPLOAD_CONCURRENCY,
+        (file, index) =>
+          uploadAndRegisterFile(file, signature, index, files.length),
+      );
 
-      for (const [index, file] of files.entries()) {
-        setUploadProgress(`Uploading ${index + 1} of ${files.length}…`);
-        const result = await uploadFileToCloudinary(file, signature);
-        uploaded.push(result);
+      const failed = outcomes.filter(
+        (outcome): outcome is Extract<FileUploadOutcome, { ok: false }> =>
+          !outcome.ok,
+      );
+
+      if (failed.length === files.length) {
+        throw new Error(failed[0]?.error ?? "Upload failed");
       }
 
-      setUploadProgress("Saving photos…");
-
-      const registerResponse = await apiFetch("/api/photos/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          collectionId,
-          photos: uploaded.map((result, index) => ({
-            public_id: result.public_id,
-            secure_url: result.secure_url,
-            width: result.width,
-            height: result.height,
-            bytes: result.bytes,
-            format: result.format,
-            originalFilename: files[index]?.name ?? result.public_id,
-          })),
-        }),
-      });
-
-      if (!registerResponse.ok) {
-        throw new Error(
-          await parseApiErrorResponse(registerResponse, "Upload failed"),
+      if (failed.length > 0) {
+        const names = failed.map((entry) => entry.file.name).join(", ");
+        setError(
+          `${files.length - failed.length} of ${files.length} photos saved. Failed: ${names}`,
         );
+        setFiles(failed.map((entry) => entry.file));
+        return;
       }
 
       router.push(`/collections/${collectionId}`);

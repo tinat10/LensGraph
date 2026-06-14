@@ -44,7 +44,7 @@ function formatShutterSpeed(value: number | null | undefined) {
 export function MetadataPanel({ photo, onTagsChange, onEnriched, onGeocoded }: MetadataPanelProps) {
   if (!photo) {
     return (
-      <aside className="surface-panel p-6">
+      <aside className="surface-panel p-6 xl:min-h-0">
         <h2 className="eyebrow">Metadata</h2>
         <p className="mt-4 text-sm leading-6 text-muted">
           Select a photo to inspect EXIF details, tags, and color analysis.
@@ -129,7 +129,7 @@ export function MetadataPanel({ photo, onTagsChange, onEnriched, onGeocoded }: M
   ];
 
   return (
-    <aside className="surface-panel p-6">
+    <aside className="surface-panel p-6 xl:min-h-0">
       <h2 className="eyebrow">Metadata</h2>
       <dl className="mt-4 space-y-3">
         {rows.map(([label, value]) => (
