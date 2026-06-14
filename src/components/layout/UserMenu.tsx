@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { signOutAction } from "@/lib/auth/actions";
 
 type UserMenuProps = {
+  isSignedIn: boolean;
   name?: string | null;
   email?: string | null;
   image?: string | null;
@@ -29,7 +30,12 @@ function getInitials(name?: string | null, email?: string | null) {
   return "?";
 }
 
-export function UserMenu({ name, email, image }: UserMenuProps) {
+export function UserMenu({
+  isSignedIn,
+  name,
+  email,
+  image,
+}: UserMenuProps) {
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const initials = getInitials(name, email);
@@ -61,7 +67,7 @@ export function UserMenu({ name, email, image }: UserMenuProps) {
   }, [open]);
 
   return (
-    <div ref={menuRef} className="relative">
+    <div ref={menuRef} className="relative ml-1 sm:ml-2">
       <button
         type="button"
         aria-expanded={open}
@@ -70,7 +76,7 @@ export function UserMenu({ name, email, image }: UserMenuProps) {
         onClick={() => setOpen((current) => !current)}
         className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border border-line bg-paper-muted transition hover:border-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink/10"
       >
-        {image ? (
+        {isSignedIn && image ? (
           <Image
             src={image}
             alt={name ?? "Profile"}
@@ -89,33 +95,62 @@ export function UserMenu({ name, email, image }: UserMenuProps) {
           role="menu"
           className="absolute top-[calc(100%+0.5rem)] right-0 z-50 min-w-[14rem] overflow-hidden rounded-2xl border border-line bg-surface py-1 shadow-[0_16px_40px_rgb(28_25_23/0.12)]"
         >
-          <div className="border-b border-line px-4 py-3">
-            <p className="truncate text-sm font-medium text-ink">
-              {name ?? "Your account"}
-            </p>
-            {email ? (
-              <p className="truncate text-xs text-muted">{email}</p>
-            ) : null}
-          </div>
+          {isSignedIn ? (
+            <>
+              <div className="border-b border-line px-4 py-3">
+                <p className="truncate text-sm font-medium text-ink">
+                  {name ?? "Your account"}
+                </p>
+                {email ? (
+                  <p className="truncate text-xs text-muted">{email}</p>
+                ) : null}
+              </div>
 
-          <Link
-            href="/profile"
-            role="menuitem"
-            onClick={() => setOpen(false)}
-            className="block px-4 py-2.5 text-sm text-ink transition hover:bg-paper-muted"
-          >
-            Profile
-          </Link>
+              <Link
+                href="/profile"
+                role="menuitem"
+                onClick={() => setOpen(false)}
+                className="block px-4 py-2.5 text-sm text-ink transition hover:bg-paper-muted"
+              >
+                Profile
+              </Link>
 
-          <form action={signOutAction}>
-            <button
-              type="submit"
-              role="menuitem"
-              className="block w-full px-4 py-2.5 text-left text-sm text-red-600 transition hover:bg-paper-muted"
-            >
-              Sign out
-            </button>
-          </form>
+              <form action={signOutAction}>
+                <button
+                  type="submit"
+                  role="menuitem"
+                  className="block w-full px-4 py-2.5 text-left text-sm text-red-600 transition hover:bg-paper-muted"
+                >
+                  Sign out
+                </button>
+              </form>
+            </>
+          ) : (
+            <>
+              <div className="border-b border-line px-4 py-3">
+                <p className="text-sm font-medium text-ink">Account</p>
+                <p className="text-xs text-muted">Sign in to manage collections</p>
+              </div>
+
+              <Link
+                href="/signin"
+                role="menuitem"
+                onClick={() => setOpen(false)}
+                className="block px-4 py-2.5 text-sm text-ink transition hover:bg-paper-muted"
+              >
+                Sign in
+              </Link>
+
+              <Link
+                href="/signup"
+                role="menuitem"
+                onClick={() => setOpen(false)}
+                className="block px-4 py-2.5 text-sm text-ink transition hover:bg-paper-muted"
+              >
+                Create account
+              </Link>
+            </>
+          )}
         </div>
       ) : null}
     </div>

@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { auth } from "@/lib/auth/auth";
 import { UserMenu } from "@/components/layout/UserMenu";
-import { Button } from "@/components/ui/Button";
 
 const navLinkClass =
   "rounded-full px-4 py-2 text-sm text-muted transition hover:bg-paper-muted hover:text-ink";
@@ -25,22 +24,15 @@ export async function Header() {
           <Link href="/stories" className={navLinkClass}>
             Explore
           </Link>
-          {session?.user ? (
-            <>
-              <Link href="/dashboard" className={navLinkClass}>
-                My Collections
-              </Link>
-              <UserMenu
-                name={session.user.name}
-                email={session.user.email}
-                image={session.user.image}
-              />
-            </>
-          ) : (
-            <Link href="/signin" className="ml-1">
-              <Button variant="secondary">Sign in</Button>
-            </Link>
-          )}
+          <Link href="/dashboard" className={navLinkClass}>
+            My Collections
+          </Link>
+          <UserMenu
+            isSignedIn={Boolean(session?.user)}
+            name={session?.user?.name}
+            email={session?.user?.email}
+            image={session?.user?.image}
+          />
         </nav>
       </div>
     </header>

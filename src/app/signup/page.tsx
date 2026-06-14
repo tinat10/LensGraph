@@ -5,7 +5,6 @@ import {
   OAuthButtons,
   SignUpForm,
 } from "@/components/auth/AuthForms";
-import { Header } from "@/components/layout/Header";
 import { auth } from "@/lib/auth/auth";
 import { getAuthErrorMessage } from "@/lib/auth/messages";
 import { isGoogleAuthEnabled } from "@/lib/auth/providers";
@@ -26,7 +25,6 @@ export default async function SignUpPage({ searchParams }: SignUpPageProps) {
 
   return (
     <>
-      <Header />
       <main className="page-shell flex min-h-[calc(100vh-4.25rem)] max-w-lg flex-col justify-center py-16">
         <div className="surface-panel p-8 sm:p-10">
           <p className="eyebrow mb-4">Get started</p>

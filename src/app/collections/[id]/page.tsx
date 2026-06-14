@@ -3,7 +3,6 @@ import { notFound, redirect } from "next/navigation";
 import { CollectionEditForm } from "@/components/collections/CollectionEditForm";
 import { DeleteCollectionButton } from "@/components/collections/DeleteCollectionButton";
 import { PublishStoryPanel } from "@/components/collections/PublishStoryPanel";
-import { Header } from "@/components/layout/Header";
 import { CollectionGallery } from "@/components/photos/CollectionGallery";
 import { Button } from "@/components/ui/Button";
 import { serializePhoto } from "@/lib/photos/serialize";
@@ -38,7 +37,6 @@ export default async function CollectionDetailPage({ params }: CollectionPagePro
 
   return (
     <>
-      <Header />
       <main className="page-shell py-10 lg:py-12">
         <div className="mb-8 space-y-6">
           <Link

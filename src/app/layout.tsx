@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { DM_Sans, Instrument_Serif } from "next/font/google";
+import { Header } from "@/components/layout/Header";
 import { AuthProvider } from "@/components/providers/AuthProvider";
 import "./globals.css";
 
@@ -31,7 +32,10 @@ export default function RootLayout({
       className={`${dmSans.variable} ${instrumentSerif.variable} h-full antialiased`}
     >
       <body className="min-h-full bg-paper text-ink">
-        <AuthProvider>{children}</AuthProvider>
+        <AuthProvider>
+          <Header />
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );

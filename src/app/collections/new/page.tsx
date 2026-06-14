@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { CollectionForm } from "@/components/collections/CollectionForm";
-import { Header } from "@/components/layout/Header";
 import { auth } from "@/lib/auth/auth";
 
 export default async function NewCollectionPage() {
@@ -12,7 +11,6 @@ export default async function NewCollectionPage() {
 
   return (
     <>
-      <Header />
       <main className="page-shell max-w-2xl py-10 lg:py-12">
         <Link
           href="/dashboard"

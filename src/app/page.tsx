@@ -1,6 +1,5 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Header } from "@/components/layout/Header";
 import { Button } from "@/components/ui/Button";
 
 const heroCollage = [
@@ -63,7 +62,6 @@ function HeroPhoto({
 export default function HomePage() {
   return (
     <>
-      <Header />
       <main className="page-shell pb-24 pt-12 lg:pt-16">
         <section className="grid items-center gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16">
           <div className="max-w-2xl">

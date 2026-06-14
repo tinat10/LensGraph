@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { Header } from "@/components/layout/Header";
 import { UploadDropzone } from "@/components/photos/UploadDropzone";
 import { auth } from "@/lib/auth/auth";
 import { getCollectionForUser } from "@/services/collection.service";
@@ -24,7 +23,6 @@ export default async function CollectionUploadPage({ params }: UploadPageProps) 
 
   return (
     <>
-      <Header />
       <main className="page-shell max-w-3xl py-10 lg:py-12">
         <Link
           href={`/collections/${collection.id}`}

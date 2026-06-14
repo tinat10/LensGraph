@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { CollectionCard } from "@/components/collections/CollectionCard";
-import { Header } from "@/components/layout/Header";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { auth } from "@/lib/auth/auth";
@@ -17,7 +16,6 @@ export default async function DashboardPage() {
 
   return (
     <>
-      <Header />
       <main className="page-shell py-10 lg:py-12">
         <div className="mb-10 flex items-end justify-between gap-4 border-b border-line pb-8">
           <div>

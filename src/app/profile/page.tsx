@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Header } from "@/components/layout/Header";
 import { ProfileForm } from "@/components/profile/ProfileForm";
 import { auth } from "@/lib/auth/auth";
 import { getUserById } from "@/services/user.service";
@@ -23,7 +22,6 @@ export default async function ProfilePage() {
 
   return (
     <>
-      <Header />
       <main className="page-shell py-10 lg:py-12">
         <div className="mb-8 space-y-3">
           <Link

@@ -1,5 +1,4 @@
 import { notFound } from "next/navigation";
-import Link from "next/link";
 import { PhotoGrid } from "@/components/photos/PhotoGrid";
 import { StoryWeatherBanner } from "@/components/story/StoryWeatherBanner";
 import { serializePhoto } from "@/lib/photos/serialize";
@@ -29,20 +28,6 @@ export default async function PublicStoryPage({ params }: StoryPageProps) {
 
   return (
     <main className="min-h-screen bg-paper text-ink">
-      <header className="border-b border-line bg-surface/90 backdrop-blur-md">
-        <div className="page-shell flex h-[4.25rem] items-center justify-between">
-          <Link href="/" className="font-display text-xl tracking-tight">
-            LensGraph
-          </Link>
-          <Link
-            href="/stories"
-            className="rounded-full px-4 py-2 text-sm text-muted transition hover:bg-accent-soft hover:text-ink"
-          >
-            Explore stories
-          </Link>
-        </div>
-      </header>
-
       <section className="page-shell py-16 lg:py-20">
         <p className="eyebrow mb-4">Story</p>
         <h1 className="font-display max-w-4xl text-5xl leading-[1.05] tracking-tight sm:text-6xl">

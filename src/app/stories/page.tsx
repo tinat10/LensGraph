@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Header } from "@/components/layout/Header";
 import { StoryCard } from "@/components/story/StoryCard";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -15,7 +14,6 @@ export default async function ExploreStoriesPage() {
 
   return (
     <>
-      <Header />
       <main className="page-shell py-10 lg:py-12">
         <div className="mb-10 border-b border-line pb-8">
           <p className="eyebrow mb-3">Public gallery</p>
