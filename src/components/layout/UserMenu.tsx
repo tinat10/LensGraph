@@ -104,7 +104,7 @@ export function UserMenu({ name, email, image }: UserMenuProps) {
             onClick={() => setOpen(false)}
             className="block px-4 py-2.5 text-sm text-ink transition hover:bg-paper-muted"
           >
-            Edit profile
+            Profile
           </Link>
 
           <form action={signOutAction}>

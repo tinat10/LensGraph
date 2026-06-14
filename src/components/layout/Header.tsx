@@ -28,18 +28,13 @@ export async function Header() {
           {session?.user ? (
             <>
               <Link href="/dashboard" className={navLinkClass}>
-                My dashboard
+                My Collections
               </Link>
-              <Link href="/profile" className={navLinkClass}>
-                Profile
-              </Link>
-              <div className="ml-1 border-l border-line pl-2 sm:ml-2 sm:pl-3">
-                <UserMenu
-                  name={session.user.name}
-                  email={session.user.email}
-                  image={session.user.image}
-                />
-              </div>
+              <UserMenu
+                name={session.user.name}
+                email={session.user.email}
+                image={session.user.image}
+              />
             </>
           ) : (
             <Link href="/signin" className="ml-1">
