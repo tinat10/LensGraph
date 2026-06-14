@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/lib/auth/auth";
+import { requireApiSession } from "@/lib/auth/api-session";
 import { deletePhoto } from "@/services/photo.service";
 
 type RouteContext = {
@@ -7,14 +7,14 @@ type RouteContext = {
 };
 
 export async function DELETE(_request: Request, context: RouteContext) {
-  const session = await auth();
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const session = await requireApiSession();
+  if (session instanceof NextResponse) {
+    return session;
   }
 
   try {
     const { id } = await context.params;
-    await deletePhoto(id, session.user.id);
+    await deletePhoto(id, session.userId);
     return NextResponse.json({ success: true });
   } catch (error) {
     const message =

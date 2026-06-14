@@ -110,7 +110,7 @@ export function AiInsightsPanel({
         <p className="text-sm text-muted">
           {isAnalyzing
             ? "OpenAI Vision is generating a caption, mood, and tags..."
-            : "Run AI analysis to generate a caption, mood, and searchable tags."}
+            : "Run AI analysis to generate a caption, mood, and aesthetic tags (themes, atmosphere, style)."}
         </p>
       )}
 

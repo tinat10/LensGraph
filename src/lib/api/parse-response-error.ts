@@ -51,10 +51,6 @@ export async function parseApiErrorResponse(
     return "Your session expired. Sign in again and retry.";
   }
 
-  if (response.status >= 500) {
-    return `${fallback} (server error ${response.status})`;
-  }
-
   return `${fallback} (${response.status})`;
 }
 
@@ -68,7 +64,12 @@ export async function parseJsonResponse<T>(
     return JSON.parse(text) as T;
   } catch {
     if (text.trimStart().startsWith("<!DOCTYPE") || text.trimStart().startsWith("<html")) {
-      throw new Error(messageFromHtmlBody(response, fallback));
+      if (response.status === 401) {
+        throw new Error("Your session expired. Sign in again and retry.");
+      }
+      throw new Error(
+        `${fallback} (unexpected HTML response — redeploy may be needed, or sign in again)`,
+      );
     }
 
     throw new Error(`${fallback} (${response.status})`);

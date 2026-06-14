@@ -7,6 +7,7 @@ import {
   parseApiErrorResponse,
   parseJsonResponse,
 } from "@/lib/api/parse-response-error";
+import { apiFetch } from "@/lib/api/client-fetch";
 import {
   MAX_UPLOAD_FILES,
   MAX_UPLOAD_FILE_SIZE,
@@ -83,7 +84,7 @@ export function UploadDropzone({ collectionId }: UploadDropzoneProps) {
   }
 
   async function getUploadSignature(): Promise<CloudinaryUploadSignature> {
-    const response = await fetch("/api/photos/upload/signature", {
+    const response = await apiFetch("/api/photos/upload/signature", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ collectionId }),
@@ -167,7 +168,7 @@ export function UploadDropzone({ collectionId }: UploadDropzoneProps) {
 
       setUploadProgress("Saving photos…");
 
-      const registerResponse = await fetch("/api/photos/register", {
+      const registerResponse = await apiFetch("/api/photos/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

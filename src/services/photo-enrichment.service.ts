@@ -12,13 +12,28 @@ export type EnrichmentResult = {
   tags: { id: string; name: string; type: string }[];
 };
 
+const GENERIC_AI_TAGS = new Set([
+  "photo",
+  "photography",
+  "photograph",
+  "image",
+  "picture",
+  "beautiful",
+  "nice",
+  "scene",
+]);
+
+function isGenericAiTag(name: string): boolean {
+  return GENERIC_AI_TAGS.has(name);
+}
+
 async function attachTypedTag(
   photoId: string,
   name: string,
   type: TagType,
 ): Promise<{ id: string; name: string; type: string } | null> {
   const normalized = normalizeTagName(name);
-  if (!normalized) return null;
+  if (!normalized || isGenericAiTag(normalized)) return null;
 
   const existing = await prisma.tag.findUnique({
     where: { name: normalized },
@@ -70,23 +85,27 @@ export async function enrichPhotoById(photoId: string): Promise<EnrichmentResult
 
   for (const subject of analysis.subjects) {
     const tag = await attachTypedTag(photoId, subject, "SUBJECT");
-    if (tag) attachedTags.push(tag);
+    if (tag && !attachedTags.some((entry) => entry.name === tag.name)) {
+      attachedTags.push(tag);
+    }
   }
 
   for (const style of analysis.styles) {
     const tag = await attachTypedTag(photoId, style, "STYLE");
-    if (tag) attachedTags.push(tag);
+    if (tag && !attachedTags.some((entry) => entry.name === tag.name)) {
+      attachedTags.push(tag);
+    }
   }
 
   for (const keyword of analysis.tags) {
     const tag = await attachTypedTag(photoId, keyword, "AI");
-    if (tag && !attachedTags.some((entry) => entry.id === tag.id)) {
+    if (tag && !attachedTags.some((entry) => entry.name === tag.name)) {
       attachedTags.push(tag);
     }
   }
 
   const moodTag = await attachTypedTag(photoId, analysis.mood, "AI");
-  if (moodTag && !attachedTags.some((entry) => entry.id === moodTag.id)) {
+  if (moodTag && !attachedTags.some((entry) => entry.name === moodTag.name)) {
     attachedTags.push(moodTag);
   }
 

@@ -17,6 +17,7 @@ import {
   parseApiErrorResponse,
   parseJsonResponse,
 } from "@/lib/api/parse-response-error";
+import { apiFetch } from "@/lib/api/client-fetch";
 import { Button } from "@/components/ui/Button";
 
 type CollectionGalleryProps = {
@@ -57,7 +58,7 @@ export function CollectionGallery({
     setError(null);
 
     try {
-      const response = await fetch(
+      const response = await apiFetch(
         `/api/collections/${collectionId}/photos?${query}`,
       );
       const data = await parseJsonResponse<{
@@ -195,7 +196,7 @@ export function CollectionGallery({
     setError(null);
 
     try {
-      const response = await fetch(`/api/photos/${photoId}`, {
+      const response = await apiFetch(`/api/photos/${photoId}`, {
         method: "DELETE",
       });
       const data = await parseJsonResponse<{ success?: boolean; error?: string }>(
@@ -232,7 +233,7 @@ export function CollectionGallery({
     setError(null);
 
     try {
-      const response = await fetch(`/api/collections/${collectionId}`, {
+      const response = await apiFetch(`/api/collections/${collectionId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ coverPhotoId: photoId }),
