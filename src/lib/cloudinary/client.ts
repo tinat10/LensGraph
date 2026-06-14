@@ -81,6 +81,27 @@ export function buildThumbnailUrl(publicId: string): string {
   });
 }
 
+/** JPEG URL for server-side EXIF/palette extraction (HEIC/HEIF-safe). */
+export function buildProcessingUrl(publicId: string): string {
+  const cloudinaryClient = getCloudinary();
+  return cloudinaryClient.url(publicId, {
+    transformation: [{ fetch_format: "jpg", quality: "auto" }],
+    secure: true,
+  });
+}
+
+export async function fetchImageBufferFromUrl(url: string): Promise<Buffer | null> {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      return null;
+    }
+    return Buffer.from(await response.arrayBuffer());
+  } catch {
+    return null;
+  }
+}
+
 export async function deleteCloudinaryImage(publicId: string): Promise<void> {
   const cloudinaryClient = getCloudinary();
   await cloudinaryClient.uploader.destroy(publicId, { resource_type: "image" });

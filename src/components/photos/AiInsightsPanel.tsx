@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
+import { parseJsonResponse } from "@/lib/api/parse-response-error";
 import type { PhotoTagSummary } from "@/lib/photos/serialize";
 
 type AiInsightsPanelProps = {
@@ -34,7 +35,14 @@ export function AiInsightsPanel({
       const response = await fetch(`/api/photos/${photoId}/enrich`, {
         method: "POST",
       });
-      const data = await response.json();
+      const data = await parseJsonResponse<{
+        error?: string;
+        enrichment: {
+          aiCaption: string;
+          aiMood: string;
+          tags: PhotoTagSummary[];
+        };
+      }>(response, "AI analysis failed");
 
       if (!response.ok) {
         throw new Error(data.error ?? "AI analysis failed");

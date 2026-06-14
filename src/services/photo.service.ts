@@ -1,8 +1,10 @@
 import type { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/db/prisma";
 import {
+  buildProcessingUrl,
   buildThumbnailUrl,
   deleteCloudinaryImage,
+  fetchImageBufferFromUrl,
   uploadImageBuffer,
 } from "@/lib/cloudinary/client";
 import {
@@ -12,6 +14,7 @@ import {
 import {
   extractColorPalette,
   extractImageMetadata,
+  type ExtractedColorPalette,
 } from "@/lib/image-processing";
 import { getCollectionForUser } from "@/services/collection.service";
 
@@ -42,13 +45,42 @@ async function createPhotoRecord(
     bytes: number;
   },
   originalFilename: string,
-  buffer: Buffer,
+  buffer: Buffer | null,
   formatHint?: string | null,
 ) {
-  const [metadata, palette] = await Promise.all([
-    extractImageMetadata(buffer),
-    extractColorPalette(buffer),
-  ]);
+  let metadata = {
+    format: formatHint ?? undefined,
+    width: upload.width,
+    height: upload.height,
+    fileSize: upload.bytes,
+    takenAt: undefined as Date | undefined,
+    cameraMake: undefined as string | undefined,
+    cameraModel: undefined as string | undefined,
+    lensModel: undefined as string | undefined,
+    focalLength: undefined as number | undefined,
+    aperture: undefined as number | undefined,
+    shutterSpeed: undefined as number | undefined,
+    iso: undefined as number | undefined,
+    latitude: undefined as number | undefined,
+    longitude: undefined as number | undefined,
+    rawExifJson: undefined as Record<string, unknown> | null | undefined,
+  };
+  let palette: ExtractedColorPalette | null = null;
+
+  if (buffer) {
+    try {
+      const extracted = await extractImageMetadata(buffer);
+      metadata = { ...metadata, ...extracted };
+    } catch (error) {
+      console.warn("[photo] metadata extraction failed:", error);
+    }
+
+    try {
+      palette = await extractColorPalette(buffer);
+    } catch (error) {
+      console.warn("[photo] palette extraction failed:", error);
+    }
+  }
 
   return prisma.photo.create({
     data: {
@@ -79,11 +111,28 @@ async function createPhotoRecord(
             | undefined,
         },
       },
-      colorPalette: {
-        create: palette,
-      },
+      ...(palette
+        ? {
+            colorPalette: {
+              create: palette,
+            },
+          }
+        : {}),
     },
   });
+}
+
+async function loadProcessingBuffer(
+  publicId: string,
+  secureUrl: string,
+): Promise<Buffer | null> {
+  const processingUrl = buildProcessingUrl(publicId);
+  const converted = await fetchImageBufferFromUrl(processingUrl);
+  if (converted) {
+    return converted;
+  }
+
+  return fetchImageBufferFromUrl(secureUrl);
 }
 
 export async function registerPhotosFromCloudinary(
@@ -104,12 +153,7 @@ export async function registerPhotosFromCloudinary(
       throw new Error("Upload does not belong to this collection");
     }
 
-    const imageResponse = await fetch(upload.secure_url);
-    if (!imageResponse.ok) {
-      throw new Error(`Failed to process ${upload.originalFilename}`);
-    }
-
-    const buffer = Buffer.from(await imageResponse.arrayBuffer());
+    const buffer = await loadProcessingBuffer(upload.public_id, upload.secure_url);
     const photo = await createPhotoRecord(
       collectionId,
       upload,

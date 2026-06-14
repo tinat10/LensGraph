@@ -33,7 +33,7 @@ export async function extractImageMetadata(
   buffer: Buffer,
 ): Promise<ExtractedExif> {
   const [sharpMeta, exif] = await Promise.all([
-    sharp(buffer).metadata(),
+    sharp(buffer).metadata().catch(() => null),
     exifr.parse(buffer).catch(() => null),
   ]);
 
@@ -64,10 +64,10 @@ export async function extractImageMetadata(
   };
 
   return {
-    format: sharpMeta.format,
-    width: sharpMeta.width,
-    height: sharpMeta.height,
-    fileSize: sharpMeta.size ?? buffer.byteLength,
+    format: sharpMeta?.format,
+    width: sharpMeta?.width,
+    height: sharpMeta?.height,
+    fileSize: sharpMeta?.size ?? buffer.byteLength,
     takenAt,
     cameraMake: getString("Make"),
     cameraModel: getString("Model"),

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
+import { parseJsonResponse } from "@/lib/api/parse-response-error";
 import type { PhotoTagSummary } from "@/lib/photos/serialize";
 
 type LocationPanelProps = {
@@ -44,7 +45,15 @@ export function LocationPanel({
       const response = await fetch(`/api/photos/${photoId}/geocode`, {
         method: "POST",
       });
-      const data = await response.json();
+      const data = await parseJsonResponse<{
+        error?: string;
+        geocode: {
+          locationName: string;
+          city: string | null;
+          country: string | null;
+          tags: PhotoTagSummary[];
+        };
+      }>(response, "Geocoding failed");
 
       if (!response.ok) {
         throw new Error(data.error ?? "Geocoding failed");

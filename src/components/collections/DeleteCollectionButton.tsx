@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
+import { parseJsonResponse } from "@/lib/api/parse-response-error";
 
 type DeleteCollectionButtonProps = {
   collectionId: string;
@@ -30,7 +31,10 @@ export function DeleteCollectionButton({
       const response = await fetch(`/api/collections/${collectionId}`, {
         method: "DELETE",
       });
-      const data = await response.json();
+      const data = await parseJsonResponse<{ error?: string }>(
+        response,
+        "Failed to delete collection",
+      );
 
       if (!response.ok) {
         throw new Error(data.error ?? "Failed to delete collection");

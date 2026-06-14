@@ -7,6 +7,7 @@ export type CloudinaryUploadSignature = {
   timestamp: number;
   signature: string;
   folder: string;
+  uploadFormat: string;
 };
 
 export function getCollectionUploadFolder(collectionId: string): string {
@@ -18,7 +19,9 @@ export function createUploadSignature(
 ): CloudinaryUploadSignature {
   const env = getServerEnv();
   const timestamp = Math.round(Date.now() / 1000);
-  const params = { timestamp, folder };
+  // Convert HEIC/HEIF and other formats to JPEG at ingest for broad compatibility.
+  const uploadFormat = "jpg";
+  const params = { timestamp, folder, format: uploadFormat };
   const signature = cloudinary.utils.api_sign_request(
     params,
     env.CLOUDINARY_API_SECRET,
@@ -30,6 +33,7 @@ export function createUploadSignature(
     timestamp,
     signature,
     folder,
+    uploadFormat,
   };
 }
 

@@ -3,7 +3,10 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
-import { parseApiErrorResponse } from "@/lib/api/parse-response-error";
+import {
+  parseApiErrorResponse,
+  parseJsonResponse,
+} from "@/lib/api/parse-response-error";
 import {
   MAX_UPLOAD_FILES,
   MAX_UPLOAD_FILE_SIZE,
@@ -21,6 +24,7 @@ type CloudinaryUploadSignature = {
   timestamp: number;
   signature: string;
   folder: string;
+  uploadFormat: string;
 };
 
 type CloudinaryDirectUploadResult = {
@@ -91,7 +95,10 @@ export function UploadDropzone({ collectionId }: UploadDropzoneProps) {
       );
     }
 
-    return response.json();
+    return parseJsonResponse<CloudinaryUploadSignature>(
+      response,
+      "Could not start upload",
+    );
   }
 
   async function uploadFileToCloudinary(
@@ -104,6 +111,7 @@ export function UploadDropzone({ collectionId }: UploadDropzoneProps) {
     formData.append("timestamp", String(signature.timestamp));
     formData.append("signature", signature.signature);
     formData.append("folder", signature.folder);
+    formData.append("format", signature.uploadFormat);
 
     const response = await fetch(
       `https://api.cloudinary.com/v1_1/${signature.cloudName}/image/upload`,
@@ -119,7 +127,10 @@ export function UploadDropzone({ collectionId }: UploadDropzoneProps) {
       );
     }
 
-    return response.json();
+    return parseJsonResponse<CloudinaryDirectUploadResult>(
+      response,
+      `Failed to upload ${file.name}`,
+    );
   }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {

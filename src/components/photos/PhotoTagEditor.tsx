@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { parseJsonResponse } from "@/lib/api/parse-response-error";
 import type { PhotoTagSummary } from "@/lib/photos/serialize";
 
 type PhotoTagEditorProps = {
@@ -34,7 +35,10 @@ export function PhotoTagEditor({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: draft }),
       });
-      const data = await response.json();
+      const data = await parseJsonResponse<{ error?: string; tag: PhotoTagSummary }>(
+        response,
+        "Failed to add tag",
+      );
 
       if (!response.ok) {
         throw new Error(data.error ?? "Failed to add tag");
@@ -60,7 +64,10 @@ export function PhotoTagEditor({
         `/api/photos/${photoId}/tags?tagId=${tagId}`,
         { method: "DELETE" },
       );
-      const data = await response.json();
+      const data = await parseJsonResponse<{ error?: string }>(
+        response,
+        "Failed to remove tag",
+      );
 
       if (!response.ok) {
         throw new Error(data.error ?? "Failed to remove tag");

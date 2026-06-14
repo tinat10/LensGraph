@@ -8,13 +8,10 @@ export const authConfig = {
   callbacks: {
     authorized({ auth, request }) {
       const { pathname } = request.nextUrl;
-      const isProtected =
-        pathname.startsWith("/dashboard") ||
-        pathname.startsWith("/collections") ||
-        pathname.startsWith("/api/collections") ||
-        pathname.startsWith("/api/photos");
+      const isProtectedPage =
+        pathname.startsWith("/dashboard") || pathname.startsWith("/collections");
 
-      if (isProtected) return !!auth?.user;
+      if (isProtectedPage) return !!auth?.user;
       return true;
     },
   },

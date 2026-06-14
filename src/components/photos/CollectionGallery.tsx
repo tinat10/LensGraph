@@ -13,6 +13,10 @@ import {
 import { PhotoGrid } from "@/components/photos/PhotoGrid";
 import type { PhotoCardData } from "@/components/photos/PhotoCard";
 import type { PhotoTagSummary } from "@/lib/photos/serialize";
+import {
+  parseApiErrorResponse,
+  parseJsonResponse,
+} from "@/lib/api/parse-response-error";
 import { Button } from "@/components/ui/Button";
 
 type CollectionGalleryProps = {
@@ -56,7 +60,12 @@ export function CollectionGallery({
       const response = await fetch(
         `/api/collections/${collectionId}/photos?${query}`,
       );
-      const data = await response.json();
+      const data = await parseJsonResponse<{
+        photos: PhotoCardData[];
+        filterOptions: PhotoFilterOptions;
+        count: number;
+        error?: string;
+      }>(response, "Failed to filter photos");
 
       if (!response.ok) {
         throw new Error(data.error ?? "Failed to filter photos");
@@ -189,7 +198,10 @@ export function CollectionGallery({
       const response = await fetch(`/api/photos/${photoId}`, {
         method: "DELETE",
       });
-      const data = await response.json();
+      const data = await parseJsonResponse<{ success?: boolean; error?: string }>(
+        response,
+        "Failed to delete photo",
+      );
 
       if (!response.ok) {
         throw new Error(data.error ?? "Failed to delete photo");
@@ -225,7 +237,10 @@ export function CollectionGallery({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ coverPhotoId: photoId }),
       });
-      const data = await response.json();
+      const data = await parseJsonResponse<{ error?: string }>(
+        response,
+        "Failed to set cover photo",
+      );
 
       if (!response.ok) {
         throw new Error(data.error ?? "Failed to set cover photo");

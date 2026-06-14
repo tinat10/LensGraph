@@ -39,7 +39,11 @@ function warmthScoreFromHex(hex: string): number {
 export async function extractColorPalette(
   buffer: Buffer,
 ): Promise<ExtractedColorPalette> {
-  const palette = await Vibrant.from(buffer).getPalette();
+  const palette = await Vibrant.from(buffer).getPalette().catch(() => null);
+
+  if (!palette) {
+    return { paletteJson: {} };
+  }
 
   const paletteJson = {
     vibrant: palette.Vibrant?.hex ?? null,
