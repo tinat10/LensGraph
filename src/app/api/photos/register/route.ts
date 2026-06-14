@@ -5,13 +5,13 @@ import { isOpenAiConfigured } from "@/lib/openai/client";
 import {
   MAX_UPLOAD_FILES,
   MAX_UPLOAD_FILE_SIZE,
-  isAcceptedImageFile,
 } from "@/lib/photos/image-file";
 import { schedulePhotoEnrichment } from "@/services/photo-enrichment.service";
 import { schedulePhotoGeocoding } from "@/services/photo-location.service";
-import { uploadPhotosToCollection } from "@/services/photo.service";
-
-export const maxDuration = 60;
+import {
+  registerPhotosFromCloudinary,
+  type CloudinaryRegisteredUpload,
+} from "@/services/photo.service";
 
 export async function POST(request: Request) {
   const session = await auth();
@@ -19,79 +19,87 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const formData = await request.formData();
-  const collectionId = formData.get("collectionId");
+  let body: {
+    collectionId?: string;
+    photos?: CloudinaryRegisteredUpload[];
+  };
 
-  if (typeof collectionId !== "string" || !collectionId) {
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
+  }
+
+  const { collectionId, photos } = body;
+
+  if (!collectionId) {
     return NextResponse.json(
       { error: "collectionId is required" },
       { status: 400 },
     );
   }
 
-  const files = formData
-    .getAll("files")
-    .filter((entry): entry is File => entry instanceof File && entry.size > 0);
-
-  if (files.length === 0) {
-    return NextResponse.json({ error: "No files provided" }, { status: 400 });
+  if (!photos || photos.length === 0) {
+    return NextResponse.json({ error: "No photos provided" }, { status: 400 });
   }
 
-  if (files.length > MAX_UPLOAD_FILES) {
+  if (photos.length > MAX_UPLOAD_FILES) {
     return NextResponse.json(
       { error: `Maximum ${MAX_UPLOAD_FILES} files per upload` },
       { status: 400 },
     );
   }
 
-  for (const file of files) {
-    if (!isAcceptedImageFile(file)) {
+  for (const photo of photos) {
+    if (
+      !photo.public_id ||
+      !photo.secure_url ||
+      !photo.originalFilename ||
+      typeof photo.width !== "number" ||
+      typeof photo.height !== "number" ||
+      typeof photo.bytes !== "number"
+    ) {
       return NextResponse.json(
-        { error: `${file.name} is not a supported image file` },
+        { error: "Each photo must include Cloudinary upload details" },
         { status: 400 },
       );
     }
 
-    if (file.size > MAX_UPLOAD_FILE_SIZE) {
+    if (photo.bytes > MAX_UPLOAD_FILE_SIZE) {
       return NextResponse.json(
-        { error: `${file.name} exceeds the 15MB limit` },
+        { error: `${photo.originalFilename} exceeds the 15MB limit` },
         { status: 400 },
       );
     }
   }
 
   try {
-    const photos = await uploadPhotosToCollection(
+    const registered = await registerPhotosFromCloudinary(
       collectionId,
       session.user.id,
-      files,
+      photos,
     );
 
     after(() => {
-      const photoIds = photos.map((photo) => photo.id);
+      const photoIds = registered.map((photo) => photo.id);
       schedulePhotoEnrichment(photoIds);
       schedulePhotoGeocoding(photoIds);
     });
 
     return NextResponse.json(
       {
-        photos,
+        photos: registered,
         enrichmentQueued: isOpenAiConfigured(),
         geocodingQueued: isMapboxConfigured(),
       },
       { status: 201 },
     );
   } catch (error) {
-    console.error("[photos/upload]", error);
+    console.error("[photos/register]", error);
 
-    let message = "Failed to upload photos";
+    let message = "Failed to register photos";
     if (error instanceof Error) {
       message = error.message;
-      // Cloudinary auth failures often surface as generic messages
-      if (/api_secret|invalid signature|401|Unauthorized/i.test(message)) {
-        message =
-          "Cloudinary authentication failed — check CLOUDINARY_API_SECRET in .env";
-      }
     }
 
     const status = message === "Collection not found" ? 404 : 500;
