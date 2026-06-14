@@ -26,15 +26,26 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   trustHost: true,
   callbacks: {
     ...authConfig.callbacks,
-    jwt({ token, user }) {
+    jwt({ token, user, trigger, session }) {
       if (user?.id) {
         token.id = user.id;
+        token.name = user.name;
+        token.picture = user.image;
       }
+
+      if (trigger === "update" && session?.user) {
+        token.name = session.user.name;
+        token.picture = session.user.image;
+      }
+
       return token;
     },
     session({ session, token }) {
       if (session.user && token.id) {
         session.user.id = String(token.id);
+        session.user.name = token.name ?? session.user.name;
+        session.user.image =
+          typeof token.picture === "string" ? token.picture : session.user.image;
       }
       return session;
     },

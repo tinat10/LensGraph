@@ -9,7 +9,9 @@ export const authConfig = {
     authorized({ auth, request }) {
       const { pathname } = request.nextUrl;
       const isProtectedPage =
-        pathname.startsWith("/dashboard") || pathname.startsWith("/collections");
+        pathname.startsWith("/dashboard") ||
+        pathname.startsWith("/collections") ||
+        pathname.startsWith("/profile");
 
       if (isProtectedPage) return !!auth?.user;
       return true;

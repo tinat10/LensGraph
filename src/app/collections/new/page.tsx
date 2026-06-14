@@ -18,7 +18,7 @@ export default async function NewCollectionPage() {
           href="/dashboard"
           className="mb-6 inline-block text-sm text-muted transition hover:text-ink"
         >
-          ← Back to dashboard
+          ← Back to my dashboard
         </Link>
         <div className="surface-panel p-8 sm:p-10">
           <p className="eyebrow mb-3">Collection</p>

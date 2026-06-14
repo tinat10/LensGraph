@@ -45,7 +45,7 @@ export default async function CollectionDetailPage({ params }: CollectionPagePro
             href="/dashboard"
             className="inline-block text-sm text-muted transition hover:text-ink"
           >
-            ← Back to dashboard
+            ← Back to my dashboard
           </Link>
 
           <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">

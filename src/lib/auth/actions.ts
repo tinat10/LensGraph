@@ -4,7 +4,7 @@ import { AuthError } from "next-auth";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { signIn } from "@/lib/auth/auth";
+import { signIn, signOut } from "@/lib/auth/auth";
 import { isGoogleAuthEnabled } from "@/lib/auth/providers";
 import { registerWithPassword } from "@/services/auth.service";
 
@@ -112,4 +112,8 @@ export async function signInWithGitHub() {
 
 export async function signInWithGoogle() {
   await signInWithOAuth("google");
+}
+
+export async function signOutAction() {
+  await signOut({ redirectTo: "/" });
 }

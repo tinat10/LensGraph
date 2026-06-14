@@ -21,7 +21,7 @@ export default async function DashboardPage() {
       <main className="page-shell py-10 lg:py-12">
         <div className="mb-10 flex items-end justify-between gap-4 border-b border-line pb-8">
           <div>
-            <p className="eyebrow mb-3">Dashboard</p>
+            <p className="eyebrow mb-3">My dashboard</p>
             <h1 className="font-display text-4xl tracking-tight text-ink">
               Your collections
             </h1>
