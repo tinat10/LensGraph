@@ -7,7 +7,6 @@ import {
   signInWithGoogle,
   signUpWithCredentials,
 } from "@/lib/auth/actions";
-import { isGoogleAuthEnabled } from "@/lib/auth/providers";
 
 type AuthFormProps = {
   errorMessage?: string | null;
@@ -29,24 +28,20 @@ export function AuthDivider() {
 }
 
 export function OAuthButtons() {
-  const googleEnabled = isGoogleAuthEnabled();
-
   return (
-    <div className={`grid gap-3 ${googleEnabled ? "sm:grid-cols-2" : ""}`}>
+    <div className="grid gap-3 sm:grid-cols-2">
       <form action={signInWithGitHub}>
         <Button type="submit" variant="secondary" className="w-full gap-2.5">
           <GitHubIcon className="h-5 w-5" />
           Continue with GitHub
         </Button>
       </form>
-      {googleEnabled ? (
-        <form action={signInWithGoogle}>
-          <Button type="submit" variant="secondary" className="w-full gap-2.5">
-            <GoogleIcon className="h-5 w-5" />
-            Continue with Google
-          </Button>
-        </form>
-      ) : null}
+      <form action={signInWithGoogle}>
+        <Button type="submit" variant="secondary" className="w-full gap-2.5">
+          <GoogleIcon className="h-5 w-5" />
+          Continue with Google
+        </Button>
+      </form>
     </div>
   );
 }

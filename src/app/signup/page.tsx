@@ -9,6 +9,8 @@ import { Header } from "@/components/layout/Header";
 import { auth } from "@/lib/auth/auth";
 import { getAuthErrorMessage } from "@/lib/auth/messages";
 
+export const dynamic = "force-dynamic";
+
 type SignUpPageProps = {
   searchParams: Promise<{ error?: string }>;
 };

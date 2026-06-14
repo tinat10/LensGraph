@@ -5,6 +5,7 @@ import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { signIn } from "@/lib/auth/auth";
+import { isGoogleAuthEnabled } from "@/lib/auth/providers";
 import { registerWithPassword } from "@/services/auth.service";
 
 const credentialsSchema = z.object({
@@ -20,6 +21,27 @@ const signupSchema = z.object({
 
 function redirectWithError(path: string, code: string): never {
   redirect(`${path}?error=${encodeURIComponent(code)}`);
+}
+
+async function signInWithOAuth(provider: "github" | "google") {
+  if (provider === "google" && !isGoogleAuthEnabled()) {
+    redirectWithError(
+      "/signin",
+      "Google sign-in is not configured on this server. Add AUTH_GOOGLE_ID and AUTH_GOOGLE_SECRET.",
+    );
+  }
+
+  try {
+    await signIn(provider, { redirectTo: "/dashboard" });
+  } catch (error) {
+    if (isRedirectError(error)) {
+      throw error;
+    }
+    if (error instanceof AuthError) {
+      redirectWithError("/signin", error.type);
+    }
+    throw error;
+  }
 }
 
 export async function signInWithCredentials(formData: FormData) {
@@ -85,9 +107,9 @@ export async function signUpWithCredentials(formData: FormData) {
 }
 
 export async function signInWithGitHub() {
-  await signIn("github", { redirectTo: "/dashboard" });
+  await signInWithOAuth("github");
 }
 
 export async function signInWithGoogle() {
-  await signIn("google", { redirectTo: "/dashboard" });
+  await signInWithOAuth("google");
 }
