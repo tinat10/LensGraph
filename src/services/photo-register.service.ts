@@ -1,16 +1,25 @@
 import type { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/db/prisma";
 import {
+  buildProcessingUrl,
   buildThumbnailUrl,
-  uploadImageBuffer,
+  fetchImageBufferFromUrl,
 } from "@/lib/cloudinary/client";
-import { getCollectionUploadFolder } from "@/lib/cloudinary/sign-upload";
 import {
-  extractColorPalette,
-  extractImageMetadata,
-  type ExtractedColorPalette,
-} from "@/lib/image-processing";
+  getCollectionUploadFolder,
+  isCloudinaryPublicIdInFolder,
+} from "@/lib/cloudinary/sign-upload";
 import { getCollectionForUser } from "@/services/collection.service";
+
+export type CloudinaryRegisteredUpload = {
+  public_id: string;
+  secure_url: string;
+  width: number;
+  height: number;
+  bytes: number;
+  format?: string;
+  originalFilename: string;
+};
 
 export type UploadPhotoResult = {
   id: string;
@@ -18,6 +27,26 @@ export type UploadPhotoResult = {
   secureUrl: string;
   thumbnailUrl: string | null;
 };
+
+async function tryExtractMetadata(buffer: Buffer) {
+  try {
+    const { extractImageMetadata } = await import("@/lib/image-processing/exif");
+    return await extractImageMetadata(buffer);
+  } catch (error) {
+    console.warn("[photo-register] metadata extraction skipped:", error);
+    return null;
+  }
+}
+
+async function tryExtractPalette(buffer: Buffer) {
+  try {
+    const { extractColorPalette } = await import("@/lib/image-processing/colors");
+    return await extractColorPalette(buffer);
+  } catch (error) {
+    console.warn("[photo-register] palette extraction skipped:", error);
+    return null;
+  }
+}
 
 async function createPhotoRecord(
   collectionId: string,
@@ -32,39 +61,26 @@ async function createPhotoRecord(
   buffer: Buffer | null,
   formatHint?: string | null,
 ) {
-  let metadata = {
-    format: formatHint ?? undefined,
-    width: upload.width,
-    height: upload.height,
-    fileSize: upload.bytes,
-    takenAt: undefined as Date | undefined,
-    cameraMake: undefined as string | undefined,
-    cameraModel: undefined as string | undefined,
-    lensModel: undefined as string | undefined,
-    focalLength: undefined as number | undefined,
-    aperture: undefined as number | undefined,
-    shutterSpeed: undefined as number | undefined,
-    iso: undefined as number | undefined,
-    latitude: undefined as number | undefined,
-    longitude: undefined as number | undefined,
-    rawExifJson: undefined as Record<string, unknown> | null | undefined,
+  const extracted = buffer ? await tryExtractMetadata(buffer) : null;
+  const palette = buffer ? await tryExtractPalette(buffer) : null;
+
+  const metadata = {
+    format: extracted?.format ?? formatHint ?? undefined,
+    width: extracted?.width ?? upload.width,
+    height: extracted?.height ?? upload.height,
+    fileSize: extracted?.fileSize ?? upload.bytes,
+    takenAt: extracted?.takenAt,
+    cameraMake: extracted?.cameraMake,
+    cameraModel: extracted?.cameraModel,
+    lensModel: extracted?.lensModel,
+    focalLength: extracted?.focalLength,
+    aperture: extracted?.aperture,
+    shutterSpeed: extracted?.shutterSpeed,
+    iso: extracted?.iso,
+    latitude: extracted?.latitude,
+    longitude: extracted?.longitude,
+    rawExifJson: extracted?.rawExifJson,
   };
-  let palette: ExtractedColorPalette | null = null;
-
-  if (buffer) {
-    try {
-      const extracted = await extractImageMetadata(buffer);
-      metadata = { ...metadata, ...extracted };
-    } catch (error) {
-      console.warn("[photo] metadata extraction failed:", error);
-    }
-
-    try {
-      palette = await extractColorPalette(buffer);
-    } catch (error) {
-      console.warn("[photo] palette extraction failed:", error);
-    }
-  }
 
   return prisma.photo.create({
     data: {
@@ -106,29 +122,44 @@ async function createPhotoRecord(
   });
 }
 
-export async function uploadPhotosToCollection(
+async function loadProcessingBuffer(
+  publicId: string,
+  secureUrl: string,
+): Promise<Buffer | null> {
+  const processingUrl = buildProcessingUrl(publicId);
+  const converted = await fetchImageBufferFromUrl(processingUrl);
+  if (converted) {
+    return converted;
+  }
+
+  return fetchImageBufferFromUrl(secureUrl);
+}
+
+export async function registerPhotosFromCloudinary(
   collectionId: string,
   userId: string,
-  files: File[],
+  uploads: CloudinaryRegisteredUpload[],
 ): Promise<UploadPhotoResult[]> {
   const collection = await getCollectionForUser(collectionId, userId);
   if (!collection) {
     throw new Error("Collection not found");
   }
 
-  const results: UploadPhotoResult[] = [];
   const folder = getCollectionUploadFolder(collectionId);
+  const results: UploadPhotoResult[] = [];
 
-  for (const file of files) {
-    const buffer = Buffer.from(await file.arrayBuffer());
+  for (const upload of uploads) {
+    if (!isCloudinaryPublicIdInFolder(upload.public_id, folder)) {
+      throw new Error("Upload does not belong to this collection");
+    }
 
-    const upload = await uploadImageBuffer(buffer, folder, file.name);
+    const buffer = await loadProcessingBuffer(upload.public_id, upload.secure_url);
     const photo = await createPhotoRecord(
       collectionId,
       upload,
-      file.name,
+      upload.originalFilename,
       buffer,
-      file.type.split("/")[1] ?? null,
+      upload.format,
     );
 
     results.push({
@@ -146,4 +177,3 @@ export async function uploadPhotosToCollection(
 
   return results;
 }
-

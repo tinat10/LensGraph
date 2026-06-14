@@ -1,5 +1,13 @@
 import exifr from "exifr";
-import sharp from "sharp";
+
+async function readSharpMetadata(buffer: Buffer) {
+  try {
+    const sharp = (await import("sharp")).default;
+    return await sharp(buffer).metadata();
+  } catch {
+    return null;
+  }
+}
 
 export type ExtractedExif = {
   format?: string;
@@ -33,7 +41,7 @@ export async function extractImageMetadata(
   buffer: Buffer,
 ): Promise<ExtractedExif> {
   const [sharpMeta, exif] = await Promise.all([
-    sharp(buffer).metadata().catch(() => null),
+    readSharpMetadata(buffer),
     exifr.parse(buffer).catch(() => null),
   ]);
 

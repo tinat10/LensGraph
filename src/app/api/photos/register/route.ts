@@ -11,7 +11,7 @@ import { schedulePhotoGeocoding } from "@/services/photo-location.service";
 import {
   registerPhotosFromCloudinary,
   type CloudinaryRegisteredUpload,
-} from "@/services/photo.service";
+} from "@/services/photo-register.service";
 
 export const maxDuration = 60;
 
