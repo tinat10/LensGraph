@@ -119,7 +119,8 @@ export function UploadDropzone({ collectionId }: UploadDropzoneProps) {
     formData.append("timestamp", String(signature.timestamp));
     formData.append("signature", signature.signature);
     formData.append("folder", signature.folder);
-    formData.append("format", signature.uploadFormat);
+    formData.append("media_metadata", "true");
+    formData.append("colors", "true");
 
     const response = await fetch(
       `https://api.cloudinary.com/v1_1/${signature.cloudName}/image/upload`,

@@ -8,6 +8,7 @@ import {
 import { Header } from "@/components/layout/Header";
 import { auth } from "@/lib/auth/auth";
 import { getAuthErrorMessage } from "@/lib/auth/messages";
+import { isGoogleAuthEnabled } from "@/lib/auth/providers";
 
 export const dynamic = "force-dynamic";
 
@@ -39,7 +40,12 @@ export default async function SignUpPage({ searchParams }: SignUpPageProps) {
 
           <SignUpForm errorMessage={getAuthErrorMessage(error)} />
           <AuthDivider />
-          <OAuthButtons />
+          <OAuthButtons googleAuthEnabled={isGoogleAuthEnabled()} />
+          {!isGoogleAuthEnabled() ? (
+            <p className="mt-3 text-center text-xs text-subtle">
+              Google sign-in is not configured on this server yet.
+            </p>
+          ) : null}
 
           <p className="mt-8 text-center text-sm text-muted">
             Already have an account?{" "}

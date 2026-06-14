@@ -6,8 +6,7 @@ import {
   MAX_UPLOAD_FILES,
   MAX_UPLOAD_FILE_SIZE,
 } from "@/lib/photos/image-file";
-import { schedulePhotoEnrichment } from "@/services/photo-enrichment.service";
-import { schedulePhotoIngest } from "@/services/photo-ingest.service";
+import { runPhotoPostProcessing } from "@/services/photo-ingest.service";
 import {
   registerPhotosFromCloudinary,
   type CloudinaryRegisteredUpload,
@@ -82,10 +81,9 @@ export async function POST(request: Request) {
       photos,
     );
 
-    after(() => {
+    after(async () => {
       const photoIds = registered.map((photo) => photo.id);
-      schedulePhotoIngest(photoIds);
-      schedulePhotoEnrichment(photoIds);
+      await runPhotoPostProcessing(photoIds);
     });
 
     return NextResponse.json(

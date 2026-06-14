@@ -7,8 +7,7 @@ import {
   MAX_UPLOAD_FILE_SIZE,
   isAcceptedImageFile,
 } from "@/lib/photos/image-file";
-import { schedulePhotoEnrichment } from "@/services/photo-enrichment.service";
-import { schedulePhotoGeocoding } from "@/services/photo-location.service";
+import { runPhotoPostProcessing } from "@/services/photo-ingest.service";
 import { uploadPhotosToCollection } from "@/services/photo.service";
 
 export const maxDuration = 60;
@@ -67,10 +66,9 @@ export async function POST(request: Request) {
       files,
     );
 
-    after(() => {
+    after(async () => {
       const photoIds = photos.map((photo) => photo.id);
-      schedulePhotoEnrichment(photoIds);
-      schedulePhotoGeocoding(photoIds);
+      await runPhotoPostProcessing(photoIds);
     });
 
     return NextResponse.json(

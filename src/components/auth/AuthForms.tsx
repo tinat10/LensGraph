@@ -27,7 +27,7 @@ export function AuthDivider() {
   );
 }
 
-export function OAuthButtons() {
+export function OAuthButtons({ googleAuthEnabled = true }: { googleAuthEnabled?: boolean }) {
   return (
     <div className="grid gap-3 sm:grid-cols-2">
       <form action={signInWithGitHub}>
@@ -36,12 +36,19 @@ export function OAuthButtons() {
           Continue with GitHub
         </Button>
       </form>
-      <form action={signInWithGoogle}>
-        <Button type="submit" variant="secondary" className="w-full gap-2.5">
-          <GoogleIcon className="h-5 w-5" />
-          Continue with Google
+      {googleAuthEnabled ? (
+        <form action={signInWithGoogle}>
+          <Button type="submit" variant="secondary" className="w-full gap-2.5">
+            <GoogleIcon className="h-5 w-5" />
+            Continue with Google
+          </Button>
+        </form>
+      ) : (
+        <Button type="button" variant="secondary" className="w-full gap-2.5" disabled>
+          <GoogleIcon className="h-5 w-5 opacity-50" />
+          Google unavailable
         </Button>
-      </form>
+      )}
     </div>
   );
 }

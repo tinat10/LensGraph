@@ -19,9 +19,13 @@ export function createUploadSignature(
 ): CloudinaryUploadSignature {
   const env = getServerEnv();
   const timestamp = Math.round(Date.now() / 1000);
-  // Convert HEIC/HEIF and other formats to JPEG at ingest for broad compatibility.
-  const uploadFormat = "jpg";
-  const params = { timestamp, folder, format: uploadFormat };
+  // Keep the original file format so EXIF/GPS survive ingest (Cloudinary converts on delivery).
+  const params = {
+    timestamp,
+    folder,
+    media_metadata: true,
+    colors: true,
+  };
   const signature = cloudinary.utils.api_sign_request(
     params,
     env.CLOUDINARY_API_SECRET,
@@ -33,7 +37,7 @@ export function createUploadSignature(
     timestamp,
     signature,
     folder,
-    uploadFormat,
+    uploadFormat: "",
   };
 }
 

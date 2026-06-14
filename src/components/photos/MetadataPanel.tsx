@@ -8,6 +8,7 @@ import type { PhotoTagSummary } from "@/lib/photos/serialize";
 
 type MetadataPanelProps = {
   photo: PhotoCardData | null;
+  isProcessing?: boolean;
   onTagsChange?: (photoId: string, tags: PhotoTagSummary[]) => void;
   onEnriched?: (
     photoId: string,
@@ -41,7 +42,7 @@ function formatShutterSpeed(value: number | null | undefined) {
   return `1/${Math.round(1 / value)}s`;
 }
 
-export function MetadataPanel({ photo, onTagsChange, onEnriched, onGeocoded }: MetadataPanelProps) {
+export function MetadataPanel({ photo, isProcessing = false, onTagsChange, onEnriched, onGeocoded }: MetadataPanelProps) {
   if (!photo) {
     return (
       <aside className="surface-panel p-6 xl:min-h-0">
@@ -131,6 +132,11 @@ export function MetadataPanel({ photo, onTagsChange, onEnriched, onGeocoded }: M
   return (
     <aside className="surface-panel p-6 xl:min-h-0">
       <h2 className="eyebrow">Metadata</h2>
+      {isProcessing ? (
+        <p className="mt-3 rounded-xl border border-line bg-paper-muted px-3 py-2 text-sm text-muted">
+          Extracting EXIF, colors, and running AI analysis…
+        </p>
+      ) : null}
       <dl className="mt-4 space-y-3">
         {rows.map(([label, value]) => (
           <div key={label} className="grid grid-cols-[120px_1fr] gap-3 text-sm">

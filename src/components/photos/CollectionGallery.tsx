@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { MetadataPanel } from "@/components/photos/MetadataPanel";
 import {
   buildPhotoSearchQuery,
@@ -52,6 +52,37 @@ export function CollectionGallery({
     () => photos.find((photo) => photo.id === selectedPhotoId) ?? null,
     [photos, selectedPhotoId],
   );
+
+  const isProcessingSelectedPhoto = useMemo(() => {
+    if (!selectedPhoto) {
+      return false;
+    }
+
+    const uploadedAt = new Date(selectedPhoto.uploadedAt).getTime();
+    const isRecent = Date.now() - uploadedAt < 3 * 60 * 1000;
+    const metadata = selectedPhoto.metadata;
+    const palette = selectedPhoto.colorPalette;
+
+    const missingDetails =
+      !metadata?.takenAt &&
+      !metadata?.cameraMake &&
+      !palette?.dominantHex &&
+      !metadata?.aiCaption;
+
+    return isRecent && missingDetails;
+  }, [selectedPhoto]);
+
+  useEffect(() => {
+    if (!isProcessingSelectedPhoto) {
+      return;
+    }
+
+    const interval = window.setInterval(() => {
+      router.refresh();
+    }, 4000);
+
+    return () => window.clearInterval(interval);
+  }, [isProcessingSelectedPhoto, router]);
 
   async function fetchPhotos(query = "") {
     setIsFiltering(true);
@@ -298,6 +329,7 @@ export function CollectionGallery({
         <div className="min-w-0 xl:sticky xl:top-24 xl:max-h-[calc(100vh-7rem)] xl:overflow-y-auto">
           <MetadataPanel
             photo={selectedPhoto}
+            isProcessing={isProcessingSelectedPhoto}
             onTagsChange={handleTagsChange}
             onEnriched={handlePhotoEnriched}
             onGeocoded={handlePhotoGeocoded}
